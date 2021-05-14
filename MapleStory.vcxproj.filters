@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="2D_Framework">
+      <UniqueIdentifier>{a53171d1-4400-4791-bdbd-83b431d5936c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame">
+      <UniqueIdentifier>{23f99d14-a5cf-46db-9f0c-823a25fe9e84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\Manager">
+      <UniqueIdentifier>{16f2959e-a4c4-4212-905a-2cbfc7f4241d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\Timer">
+      <UniqueIdentifier>{db5d101a-ba45-4424-b1db-b25f15c069e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\UI">
+      <UniqueIdentifier>{7d6aa8ed-a389-4d3d-9141-2a71b4f72000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Unit">
+      <UniqueIdentifier>{d7b251ba-bd4c-49d4-829a-16eb544706d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Scene">
+      <UniqueIdentifier>{58f1dd7c-5cca-4143-8da1-14fd141e1089}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\UI\Button">
+      <UniqueIdentifier>{107932fa-9d56-4acb-91e2-7288ce24424d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Skill">
+      <UniqueIdentifier>{b319335f-7c7e-4e3e-afcb-8f0dd4385d30}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGame.cpp">
+      <Filter>MainGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>2D_Framework\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>2D_Framework\UI\Button</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>2D_Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="GameNode.cpp">
+      <Filter>2D_Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="TownScene.cpp">
+      <Filter>MainGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingScene.cpp">
+      <Filter>MainGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="BattleFieldScene.cpp">
+      <Filter>MainGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Unit.cpp">
+      <Filter>MainGame\Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>MainGame\Unit</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraManager.cpp">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillManager.cpp">
+      <Filter>MainGame\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill.cpp">
+      <Filter>MainGame\Skill</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonFunction.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MainGame.h">
+      <Filter>MainGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>2D_Framework\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>2D_Framework\UI\Button</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>2D_Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>2D_Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="GameNode.h">
+      <Filter>2D_Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="TimerManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="TownScene.h">
+      <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingScene.h">
+      <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleFieldScene.h">
+      <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>MainGame\Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>MainGame\Unit</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraManager.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillManager.h">
+      <Filter>MainGame\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill.h">
+      <Filter>MainGame\Skill</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
