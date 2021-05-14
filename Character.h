@@ -21,6 +21,7 @@ private:
 
 	float jumpTimer;
 	float attackTimer;
+	float priorPosY;
 
 public:
 	virtual ~Character() {}

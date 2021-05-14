@@ -4,8 +4,8 @@
 #include "SkillManager.h"
 #include <unordered_map>
 
-#define VELOCITY    4.0f
-#define ATTACK_TIME 2.0f
+#define VELOCITY    60.0f
+#define ATTACK_TIME 1.0f
 
 HRESULT Character::Init()
 {
@@ -33,6 +33,7 @@ HRESULT Character::Init()
     state = UNIT_STATE::JUMPING_STATE;
     jumpingState = JUMPING_STATE::JUMPING_DOWN;
     jumpTimer = 0.0f;
+    priorPosY = center.y;
 
     attackTimer = 0.0f;
 
@@ -55,12 +56,13 @@ void Character::Update()
     //Pixel Collision
     jumpingState = CheckPixelCollision();
 
-    //공중에 떠 있을 때
+    //점프상태
     if (jumpingState == JUMPING_STATE::JUMPING_UP)
     {
-        jumpTimer += TimerManager::GetSingleton()->GetElapsedTime();
+        jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
         center.x = center.x + VELOCITY * cos(PI / 2.0f) * jumpTimer;
-        center.y = center.y - VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer;
+        center.y = priorPosY - (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);// 점프타이머(-0.5*GA*점프타이머 + VELOCITY * sin(PI/2.0f))
+        
         if (jumpTimer >= VELOCITY * sin(PI / 2.0f) / (0.5f * GA) / 2.0f)//낙하시간대로 들어서면
         {
             jumpingState = JUMPING_STATE::JUMPING_DOWN;
@@ -68,16 +70,21 @@ void Character::Update()
     }
     else if (jumpingState == JUMPING_STATE::JUMPING_DOWN)
     {
-        if (jumpTimer < VELOCITY * sin(PI / 2.0f) / (0.5f * GA) / 2.0f)//낙하시간이 아니라 이륙시간대이면
+        //점프가 아니라 위에서 갑자기 뚝 떨어질 경우
+        if (jumpTimer < VELOCITY * sin(PI / 2.0f) / (0.5f * GA) / 2.0f) {//낙하시간이 아니라 이륙시간대이면
             jumpTimer = VELOCITY * sin(PI / 2.0f / (0.5f * GA) / 2.0f);//낙하 시간대으로 바꿔주고
-        jumpTimer += TimerManager::GetSingleton()->GetElapsedTime();
+            //현재 위치에서 포물선의 최고점 위치 만큼 빼준다. -> 아래식서 현재위치가 포물선의 최고점이되게
+            priorPosY = center.y + (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
+        }
+        jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
         center.x = center.x + VELOCITY * cos(PI / 2.0f) * jumpTimer;
-        center.y = center.y - ((double)VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5 * GA * pow(jumpTimer, 2));
+        center.y = priorPosY - (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
     }
     else if(jumpingState == JUMPING_STATE::JUST_LANDED)//방금 착지했을 때
     {
-        jumpTimer = 0.0f;
         state = UNIT_STATE::DEFAULT_STATE;
+        jumpTimer = 0.0f;
+        priorPosY = center.y;
         jumpingState = JUMPING_STATE::END_OF_JUMPING_STATE;
     }
 
@@ -154,7 +161,7 @@ JUMPING_STATE Character::CheckPixelCollision()
         //바닥이 아닌경우
         return JUMPING_STATE::JUMPING_DOWN;
     }
-    return jumpingState;
+    return JUMPING_STATE::JUMPING_UP;
 }
 
 void Character::HandleDefaultState()
@@ -230,9 +237,6 @@ void Character::HandleWalkingState()
 
 void Character::HandleAttackState()
 {
-    attackTimer += TimerManager::GetSingleton()->GetElapsedTime();
-    if (attackTimer >= ATTACK_TIME)
-        attackTimer = 0.0f;
 
     //공격상태에서는 아무키도 먹지 않는다.
    if(KeyManager::GetSingleton()->IsKeyUp(VK_CONTROL) && attackTimer == 0.0f)
@@ -266,6 +270,8 @@ void Character::HandleJumpingState()
     {
         //d = v * t; 포물선 운동
         jumpingState = JUMPING_STATE::JUMPING_UP;
+        priorPosY = center.y;
+        jumpTimer = 0.0f;
     }
 
     ShowAnimation(UNIT_STATE::JUMPING_STATE);//애니메이션 처리
@@ -281,11 +287,36 @@ void Character::HandleJumpingAttackState()
 //엎드린 상태
 void Character::HandleLyingState()
 {
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_CONTROL))
+    {
+        //state = UNIT_STATE::LYING_ATTACK_STATE; //현재 구현되지 않은 상태(리소스의 부재)
+        //return;
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_LEFT;
+        state = UNIT_STATE::WALKING_STATE;
+        return;
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_RIGHT))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
+        state = UNIT_STATE::WALKING_STATE;
+        return;
+    }
+    else if (KeyManager::GetSingleton()->IsKeyUp(VK_DOWN))
+    {
+        state = UNIT_STATE::DEFAULT_STATE;
+        return;
+    }
+
+    ShowAnimation(UNIT_STATE::LYING_STATE);
 }
 
 //엎드려서 공격
 void Character::HandleLyingAttackState()
 {
+    //현재 구현되지 않음
 }
 
 //밧줄에 매달린 상태
@@ -333,52 +364,70 @@ void Character::ShowAnimation(UNIT_STATE unitState)
 
     //TODO 상태 변경 나누는 기준 제대로 바꾸기
     //상태 변경이 없었을 때
-    if (nextFrameY == frame.y)
+    timer += TimerManager::GetSingleton()->GetElapsedTime();
+    if (timer >= 0.2f)
     {
-        timer += TimerManager::GetSingleton()->GetElapsedTime();
-        if(timer >= 0.2f)
+        if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1)
+            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3)) )
         {
             frame.x++;
             if (frame.x >= image->GetVMaxFrameX(frame.y))
             {
-                if (frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3))
+                frame.x = 0;
+                frame.y++;
+                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3))
                 {
-                    frame.y++;
-                    if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3))
-                    {
-                        frame.y = static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1);
-                    }
+                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1);
                 }
-                else if (frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
+            }
+        }
+        else if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1)
+            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3)))
+        {
+            frame.x++;
+            if (frame.x >= image->GetVMaxFrameX(frame.y))
+            {
+                frame.x = 0;
+                frame.y++;
+                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
                 {
-                    frame.y++;
-                    if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
-                    {
-                        frame.y = static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1);
-                    }
+                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1);
                 }
-                else if (frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_2) )
+            }
+        }
+        else if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::HANGING_1)
+            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_2)))
+        {
+            frame.x++;
+            if (frame.x >= image->GetVMaxFrameX(frame.y))
+            {
+                frame.x = 0;
+                frame.y++;
+                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::HANGING_2))
                 {
-                    frame.y++;
-                    if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::HANGING_2))
-                    {
-                        frame.y = static_cast<int>(CHARACTER_FRAME_Y::HANGING_1);
-                    }
+                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::HANGING_1);
                 }
+            }
+        }
+        else if (nextFrameY == frame.y)
+        {
+            frame.x++;
+            if (frame.x >= image->GetVMaxFrameX(frame.y))
+            {
                 frame.x = 0;
             }
-            timer = 0.0f;
         }
-    }
-    else//상태 변경이 있었을 때
-    {
-        frame.x = 0;
-        state = unitState;
-        frame.y = nextFrameY;
+        else
+        {
+            frame.x = 0;
+            frame.y = nextFrameY;
+        }
+
+        timer = 0.0f;
     }
 }
 
-//유닛의 상태에 해당하는 애니메이션 Y프레임을 반환
+//유닛의 상태에 해당하는 애니메이션 시작 Y프레임을 반환
 CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
 {
     CHARACTER_FRAME_Y result = CHARACTER_FRAME_Y::DEFAULT;
