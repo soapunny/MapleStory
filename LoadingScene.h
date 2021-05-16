@@ -6,6 +6,7 @@ class LoadingScene : public GameNode
 {
 private:
 	Image* bg;
+	POINT frame;
 
 public:
 	virtual HRESULT Init();			// 멤버 변수의 초기화, 메모리 할당

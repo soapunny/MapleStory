@@ -37,8 +37,6 @@ public:
 	virtual void SetIntel(int intel) { this->intel = intel; }
 	virtual void SetLuck(int luck) { this->luck = luck; }
 
-	JUMPING_STATE CheckPixelCollision();
-
 	void HandleDefaultState();
 	void HandleWalkingState();
 	void HandleAttackState();
@@ -47,6 +45,7 @@ public:
 	void HandleLyingState();
 	void HandleLyingAttackState();
 	void HandleHangingState();
+	void HandleHangingMoveState();
 
 	void MoveCharacter();
 

@@ -1,7 +1,8 @@
 #include "MainGame.h"
 #include "Image.h"
 #include "LoadingScene.h"
-#include "BattleFieldScene.h"
+#include "MushroomFieldScene.h"
+#include "FirstTownScene.h"
 
 HRESULT MainGame::Init()
 {
@@ -11,7 +12,7 @@ HRESULT MainGame::Init()
 	ImageManager::GetSingleton()->Init();
 	SceneManager::GetSingleton()->Init();
 	FileManager::GetSingleton()->Init();
-	CameraManager::GetSingleton()->Init();
+	CollisionManager::GetSingleton()->Init();
 
 
 	// 메인게임의 초기화 함수
@@ -25,14 +26,22 @@ HRESULT MainGame::Init()
 	backBuffer = new Image();
 	backBuffer->Init(maxWidth, maxHeight);
 	//이미지
-	ImageManager::GetSingleton()->AddImage("로딩화면1", "Image/loading.bmp", WINSIZE_X, WINSIZE_Y);
+	ImageManager::GetSingleton()->AddImage("로딩화면_핑크빈", "Image/LoadingScene/핑크빈.bmp", 9597, 331, 21, 1);
 	ImageManager::GetSingleton()->AddImage("Character", "Image/Character/player.bmp", 315, 1099, 4, vector<int>{2,4,4,3,3,3,3,3,3,2,2,2,2}, 13, true, RGB(255, 0, 255));
+	ImageManager::GetSingleton()->AddImage("머쉬맘필드", "Image/Map/머쉬맘필드_2520_1080.bmp", "Image/Map/머쉬맘필드_2520_1080_tile_collision.bmp", 2520, 1080);
+	ImageManager::GetSingleton()->AddImage("miniMapUI", "Image/UI/miniMapUI_머쉬룸필드.bmp", 300, 50);
+	ImageManager::GetSingleton()->AddImage("MushroomHill_minimap", "Image/Map/머쉬맘필드_minimap.bmp", 300, 128);
+	ImageManager::GetSingleton()->AddImage("헤네시스광장", "Image/Map/헤네시스광장.bmp", "Image/Map/헤네시스광장_tile_collision.bmp", 6850, 1654);
+	ImageManager::GetSingleton()->AddImage("miniMapUI_헤네시스광장", "Image/UI/miniMapUI_헤네시스광장.bmp", 300, 50);
+	ImageManager::GetSingleton()->AddImage("헤네시스광장_minimap", "Image/Map/헤네시스광장_minimap.bmp", 300, 72);
 
 	//씬
-	SceneManager::GetSingleton()->AddScene("사냥터1", new BattleFieldScene());
+	SceneManager::GetSingleton()->AddScene("머쉬맘필드", new MushroomFieldScene());
+	SceneManager::GetSingleton()->AddScene("헤네시스광장", new FirstTownScene());
 	SceneManager::GetSingleton()->AddLoadingScene("로딩씬_1", new LoadingScene());
 
-	SceneManager::GetSingleton()->ChangeScene("사냥터1");
+	SceneManager::GetSingleton()->ChangeScene("머쉬맘필드");
+
 
 	isInited = true;
 
@@ -44,6 +53,7 @@ void MainGame::Release()
 	KeyManager::GetSingleton()->Release();
 	ImageManager::GetSingleton()->Release();
 	SceneManager::GetSingleton()->Release();
+	CollisionManager::GetSingleton()->Release();
 
 	SAFE_RELEASE(backBuffer);
 
@@ -62,10 +72,10 @@ void MainGame::Render()
 	SceneManager::GetSingleton()->Render(hBackDC);
 
 	// 인사
-	TextOut(hBackDC, 20, 20, "MainGame 렌더 중", strlen("MainGame 렌더 중"));
+	//TextOut(hBackDC, 20, 20, "MainGame 렌더 중", strlen("MainGame 렌더 중"));
 	// 마우스 좌표
-	wsprintf(szText, "X : %d, Y : %d", g_ptMouse.x, g_ptMouse.y);
-	TextOut(hBackDC, 200, 20, szText, strlen(szText));
+	//wsprintf(szText, "X : %d, Y : %d", g_ptMouse.x, g_ptMouse.y);
+	//TextOut(hBackDC, 200, 20, szText, strlen(szText));
 	// FPS
 	TimerManager::GetSingleton()->Render(hBackDC);
 

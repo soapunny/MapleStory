@@ -18,6 +18,7 @@ using namespace std;
 #include "SceneManager.h"
 #include "FileManager.h"
 #include "CameraManager.h"
+#include "CollisionManager.h"
 
 #define WINSIZE_X	1080
 #define WINSIZE_Y	720

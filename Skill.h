@@ -14,8 +14,10 @@ private:
 	int hpConsumption;
 	int mpConsumption;
 
+	float skillDelay;
 	float skillRange;
-	
+	bool needShuriken;
+
 	Image* image1;
 	Image* image2;
 
@@ -32,6 +34,7 @@ public:
 	virtual void Render(HDC hdc);	// 프레임 단위로 출력 (이미지, 텍스트 등)
 
 	bool GetFired() { return isFired; }
+	float GetSkillDelay() { return skillDelay; }
 
 	void FireSkill(RECT ownerShape);
 };

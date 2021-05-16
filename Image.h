@@ -89,6 +89,7 @@ public:
 	// 화면에 출력
 	void Render(HDC hdc, int destX = 0, int destY = 0,
 		bool isCenterRenderring = false);
+	void RenderMiniMap(HDC hdc, int destX, int destY, int width, int height, FPOINT characterCenterPos);
 	void RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring = false);
 	void FrameRender(HDC hdc, int destX, int destY,
 		int currFrameX, int currFrameY, bool isCenterRenderring = false, int size = 1);
@@ -120,6 +121,7 @@ public:
 	int GetHeight() { return this->imageInfo->height; }
 	int GetFrameWidth() { return this->imageInfo->frameWidth; }
 	int GetFrameHeight() { return this->imageInfo->frameHeight; }
+	int GetMaxFrameX() { return this->imageInfo->maxFrameX; }
 	int GetMaxFrameY() { return this->imageInfo->maxFrameY; }
 	int GetVMaxFrameX(int frameY) { return this->imageInfo->vMaxFrameX[frameY]; }
 

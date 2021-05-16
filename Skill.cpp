@@ -11,8 +11,9 @@ HRESULT Skill::Init()
     hpConsumption = 0.0f;
     mpConsumption = 15.0f;
 
-    image1 = ImageManager::GetSingleton()->AddImage("luckySeven", "Image/Skill/luckySeven.bmp", 300, 88, 5, 2, true, RGB(255, 0, 255));
-    image2 = ImageManager::GetSingleton()->AddImage("throwingWeapon", "Image/Projectile/ǥâ.bmp", 60, 30, 2, 1, true, RGB(255, 0, 255));
+    image1 = ImageManager::GetSingleton()->FindImage(name);
+    if(needShuriken)
+        image2 = ImageManager::GetSingleton()->FindImage("shuriken");
     
     frame.x = 0;
     frame.y = 0;

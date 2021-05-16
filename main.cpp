@@ -7,7 +7,7 @@
 // 인스턴스 : 객체 메모리상에 존재하는 객체
 HINSTANCE g_hInstance;		// 프로그램 인스턴스 핸들
 HWND g_hWnd;				// 윈도우 핸들
-LPSTR g_lpszClass = (LPSTR)TEXT("윈메인의 시작");
+LPSTR g_lpszClass = (LPSTR)TEXT("MapleStory");
 POINT g_ptMouse;
 
 MainGame g_mainGame;

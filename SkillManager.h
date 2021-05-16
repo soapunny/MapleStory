@@ -14,6 +14,8 @@ public:
 	virtual void Render(HDC hdc);	// 프레임 단위로 출력 (이미지, 텍스트 등)
 
 	void FireSkill(string skillName, RECT playerShape);
+	
+	float GetSkillDelay(string skillName);
 
 	virtual ~SkillManager() {}
 };

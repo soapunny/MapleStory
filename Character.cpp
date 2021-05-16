@@ -13,7 +13,6 @@ HRESULT Character::Init()
 
     timer = 0.0f;
     
-
     FileManager::GetSingleton()->ReadCharacterData(this);
 
     width = 100.0f;
@@ -34,11 +33,16 @@ HRESULT Character::Init()
     jumpingState = JUMPING_STATE::JUMPING_DOWN;
     jumpTimer = 0.0f;
     priorPosY = center.y;
+    isJumpingDown = false;
+
+    blockedState = BLOCKED_STATE::END_OF_BLOCKED_STATE;
 
     attackTimer = 0.0f;
 
     skillManager = new SkillManager();
     skillManager->Init();
+
+    CollisionManager::GetSingleton()->RegisterPlayer(this);
 
     return S_OK;
 }
@@ -53,8 +57,6 @@ void Character::Release()
 //TODO 모든 실행에 elapsedTime을 곱해서 프레임에 관계없이 잘 실행되게 수정
 void Character::Update()
 {
-    //Pixel Collision
-    jumpingState = CheckPixelCollision();
 
     //점프상태
     if (jumpingState == JUMPING_STATE::JUMPING_UP)
@@ -87,6 +89,10 @@ void Character::Update()
         priorPosY = center.y;
         jumpingState = JUMPING_STATE::END_OF_JUMPING_STATE;
     }
+    else
+    {
+        jumpTimer = 0.0f;
+    }
 
 
     //유한상태 기계 만들기
@@ -116,6 +122,9 @@ void Character::Update()
     case UNIT_STATE::HANGING_STATE:
         HandleHangingState();
         break;
+    case UNIT_STATE::HANGING_MOVE_STATE:
+        HandleHangingMoveState();
+        break;
     default:
         break;
     }
@@ -126,42 +135,6 @@ void Character::Update()
         //TODO 동전 줍기
     }
 
-}
-
-JUMPING_STATE Character::CheckPixelCollision()
-{
-    // 픽셀 충돌 확인
-    if(jumpingState != JUMPING_STATE::JUMPING_UP)
-    { 
-        int R = 0;
-        int G = 0;
-        int B = 0;
-        float currPosY = center.y;
-        for (int i = (int)(currPosY - 1.0f); i <= (int)(currPosY + 1.0f); i++)
-        {
-            for (int j = (int)(center.x - 35.0f); j <= (int)(center.x - 30.0f); j++)
-            {
-                COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), j, i);//발 아래부분 좌표와 배경의 픽셀충돌
-
-                R = GetRValue(color);
-                G = GetGValue(color);
-                B = GetBValue(color);
-
-                if ((R == 255 && G == 0 && B == 255) || (R == 0 && G == 0 && B == 0))//착륙했을 때
-                {
-                    //위치 고정
-                    center.y = i;
-                    if (jumpingState == JUMPING_STATE::JUMPING_DOWN)
-                        return JUMPING_STATE::JUST_LANDED;
-                    else
-                        return JUMPING_STATE::END_OF_JUMPING_STATE;
-                }
-            }
-        }
-        //바닥이 아닌경우
-        return JUMPING_STATE::JUMPING_DOWN;
-    }
-    return JUMPING_STATE::JUMPING_UP;
 }
 
 void Character::HandleDefaultState()
@@ -176,6 +149,11 @@ void Character::HandleDefaultState()
     {
         state = UNIT_STATE::WALKING_STATE;
         moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
+        return;
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
+    {
+        state = UNIT_STATE::HANGING_STATE;
         return;
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
@@ -237,20 +215,25 @@ void Character::HandleWalkingState()
 
 void Character::HandleAttackState()
 {
-
+    
     //공격상태에서는 아무키도 먹지 않는다.
    if(KeyManager::GetSingleton()->IsKeyUp(VK_CONTROL) && attackTimer == 0.0f)
     {
         state = UNIT_STATE::DEFAULT_STATE;
         return;
     }
-
+    //TODO 공격 상태일 때 표창 제대로 나가게 구현, 스킬을 FILE에서 불러오게 처리, 스킬 딜레이 받아와서 딜레이주기
     ShowAnimation(UNIT_STATE::ATTACK_STATE);//애니메이션 처리
 }
 
 void Character::HandleJumpingState()
 {
-    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
+    {
+        state = UNIT_STATE::HANGING_STATE;
+        return;
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
     {
         moveDirection = MOVE_DIRECTION::MOVE_LEFT;
         MoveCharacter();
@@ -282,6 +265,21 @@ void Character::HandleJumpingState()
 //점프 중 공격
 void Character::HandleJumpingAttackState()
 {
+    if (KeyManager::GetSingleton()->IsKeyUp(VK_CONTROL))
+    {
+        state == UNIT_STATE::JUMPING_STATE;
+        return;
+    }
+
+    if (jumpingState == JUMPING_STATE::END_OF_JUMPING_STATE)//처음 점프를 했을 때
+    {
+        //d = v * t; 포물선 운동
+        jumpingState = JUMPING_STATE::JUMPING_UP;
+        priorPosY = center.y;
+        jumpTimer = 0.0f;
+    }
+
+    ShowAnimation(UNIT_STATE::JUMPING_ATTACK_STATE);//애니메이션 처리
 }
 
 //엎드린 상태
@@ -309,6 +307,14 @@ void Character::HandleLyingState()
         state = UNIT_STATE::DEFAULT_STATE;
         return;
     }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown('X'))
+    {
+        isJumpingDown = true;
+    }
+    else
+    {
+        isJumpingDown = false;
+    }
 
     ShowAnimation(UNIT_STATE::LYING_STATE);
 }
@@ -322,6 +328,59 @@ void Character::HandleLyingAttackState()
 //밧줄에 매달린 상태
 void Character::HandleHangingState()
 {
+    if (jumpingState != JUMPING_STATE::END_OF_JUMPING_STATE)
+    {
+        state = UNIT_STATE::JUMPING_STATE;
+        return;
+    }
+
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_UP;
+        state = UNIT_STATE::HANGING_MOVE_STATE;
+        return;
+    }
+    else if(KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_DOWN;
+        state = UNIT_STATE::HANGING_MOVE_STATE;
+        return;
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown('X'))
+    {
+        state = UNIT_STATE::JUMPING_STATE;
+        jumpingState = JUMPING_STATE::JUMPING_DOWN;
+        return;
+    }
+
+    ShowAnimation(UNIT_STATE::HANGING_STATE);
+}
+
+void Character::HandleHangingMoveState()
+{
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_UP;
+        MoveCharacter();
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
+    {
+        moveDirection = MOVE_DIRECTION::MOVE_DOWN;
+        MoveCharacter();
+    }
+    else if (KeyManager::GetSingleton()->IsStayKeyDown('X'))
+    {
+        state = UNIT_STATE::JUMPING_STATE;
+        jumpingState = JUMPING_STATE::JUMPING_DOWN;
+        return;
+    }
+    else
+    {
+        state = UNIT_STATE::HANGING_STATE;
+        return;
+    }
+
+    ShowAnimation(UNIT_STATE::HANGING_MOVE_STATE);
 }
 
 //캐릭터 이동
@@ -330,15 +389,23 @@ void Character::MoveCharacter()
     //플레이어 걷기
     if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
     {
-        if (center.x - moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() <= width / 2.0f)
+        if (center.x - moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() <= width / 2.0f || blockedState == BLOCKED_STATE::LEFT)
             return;
         center.x -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
     else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
     {
-        if (center.x + moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() >= CameraManager::GetSingleton()->GetBG()->GetWidth())
+        if (center.x + moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() >= CameraManager::GetSingleton()->GetBG()->GetWidth() || blockedState == BLOCKED_STATE::RIGHT)
             return;
         center.x += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+    }
+    else if (moveDirection == MOVE_DIRECTION::MOVE_UP)
+    {
+        center.y -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+    }
+    else if (moveDirection == MOVE_DIRECTION::MOVE_DOWN)
+    {
+        center.y += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
 }
 
@@ -347,7 +414,7 @@ void Character::ShowAnimation(UNIT_STATE unitState)
 {
     int nextFrameY = static_cast<int>(UnitStateToCharacterFrameY(unitState) );
     //캐릭터 상태가 고정된 상태에서 왼쪽 오른쪽이 나눠져 있을 때
-    if(unitState == UNIT_STATE::DEFAULT_STATE || unitState == UNIT_STATE::JUMPING_STATE || unitState == UNIT_STATE::LYING_STATE || unitState == UNIT_STATE::HANGING_STATE)
+    if(unitState == UNIT_STATE::DEFAULT_STATE || unitState == UNIT_STATE::JUMPING_STATE || unitState == UNIT_STATE::LYING_STATE)
     {
         if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
         {
@@ -357,6 +424,12 @@ void Character::ShowAnimation(UNIT_STATE unitState)
         {
             frame.x = static_cast<int>(MOVE_DIRECTION::MOVE_RIGHT);
         }
+        frame.y = nextFrameY;
+        return;
+    }
+    else if (unitState == UNIT_STATE::HANGING_STATE)
+    {
+        frame.x = static_cast<int>(MOVE_DIRECTION::MOVE_RIGHT);
         frame.y = nextFrameY;
         return;
     }
@@ -392,20 +465,6 @@ void Character::ShowAnimation(UNIT_STATE unitState)
                 if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
                 {
                     frame.y = static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1);
-                }
-            }
-        }
-        else if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::HANGING_1)
-            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::HANGING_2)))
-        {
-            frame.x++;
-            if (frame.x >= image->GetVMaxFrameX(frame.y))
-            {
-                frame.x = 0;
-                frame.y++;
-                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::HANGING_2))
-                {
-                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::HANGING_1);
                 }
             }
         }
@@ -465,10 +524,10 @@ CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
         result = CHARACTER_FRAME_Y::LYING;
         break;
     case UNIT_STATE::HANGING_STATE:
-        if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
-            result = CHARACTER_FRAME_Y::HANGING_1;
-        else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
-            result = CHARACTER_FRAME_Y::HANGING_2;
+        result = CHARACTER_FRAME_Y::HANGING_1;
+        break;
+    case UNIT_STATE::HANGING_MOVE_STATE:
+        result = CHARACTER_FRAME_Y::HANGING_1;
         break;
     default:
         break;

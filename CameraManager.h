@@ -10,8 +10,9 @@ private:
 	Image* bg;
 	POINT pos;
 public:
-	void Init();
+	void Init(string sceneImage);
 	void Update(Unit* character);
+
 	void FocusOnCharacter(HDC hdc, Unit* character);
 
 	Image* GetBG() { return bg; }

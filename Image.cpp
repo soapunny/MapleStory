@@ -232,6 +232,45 @@ void Image::Render(HDC hdc, int destX, int destY, bool isCenterRenderring)
 
 }
 
+void Image::RenderMiniMap(HDC hdc, int destX, int destY, int width, int height, FPOINT characterCenterPos)
+{
+    int x = destX;
+    int y = destY;
+
+    Rectangle(hdc, destX, destY, destX + width, destY + height);
+
+    if (isTransparent)
+    {
+        // 특정 색상을 빼고 복사하는 함수
+        GdiTransparentBlt(
+            hdc,
+            x, y,
+            width, height,
+
+            imageInfo->hMemDC,
+            0, 0,
+            imageInfo->width, imageInfo->height,
+            transColor
+        );
+    }
+    else
+    {
+        // bitmap 에 있는 이미지 정보를 다른 비트맵에 복사
+        StretchBlt(
+            hdc,                // 복사 목적지 DC
+            x, y,               // 복사 시작 위치
+            width, height,
+            imageInfo->hMemDC,
+            0, 0,
+            imageInfo->width,   // 원본에서 복사될 가로크기
+            imageInfo->height,  // 원본에서 복사될 세로크기
+            SRCCOPY             // 복사 옵션
+        );
+    }
+
+    Ellipse(hdc, characterCenterPos.x - 5, characterCenterPos.y - 5, characterCenterPos.x + 5, characterCenterPos.y + 5);
+}
+
 void Image::RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring)
 {
     int x = 0;

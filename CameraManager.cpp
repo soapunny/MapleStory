@@ -3,9 +3,9 @@
 #include "Character.h"
 #include "Image.h"
 
-void CameraManager::Init()
+void CameraManager::Init(string sceneImage)
 {
-	bg = ImageManager::GetSingleton()->AddImage("¸Ó½¬¸¾ÇÊµå", "Image/Map/¸Ó½¬¸¾ÇÊµå_2520_1080.bmp", "Image/Map/¸Ó½¬¸¾ÇÊµå_2520_1080_tmp.bmp", 2520, 1080);
+	bg = ImageManager::GetSingleton()->FindImage(sceneImage);
 	
 	pos.x = 0;
 	pos.y = bg->GetHeight() - WINSIZE_Y;
@@ -66,6 +66,5 @@ void CameraManager::Update(Unit* character)
 
 void CameraManager::FocusOnCharacter(HDC hdc, Unit* character)
 {
-	
 	bg->RenderWalkingCamara(hdc, pos.x, pos.y);
 }
