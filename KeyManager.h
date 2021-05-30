@@ -1,9 +1,9 @@
 #pragma once
 #include "Singleton.h"
+#include "config.h"
 
 #define MAX_KEY_COUNT	256	
 
-using namespace std;
 
 class KeyManager : public Singleton<KeyManager>
 {

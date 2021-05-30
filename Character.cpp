@@ -1,22 +1,24 @@
+#pragma once
 #include "Character.h"
-#include "ImageManager.h"
+#include "Managers.h"
+#include "CalcUtil.h"
 #include "Image.h"
 #include "SkillManager.h"
-#include <unordered_map>
+#include "DamageQueue.h"
 
-#define VELOCITY    60.0f
 #define ATTACK_TIME 1.0f
 
 HRESULT Character::Init()
 {
     image = ImageManager::GetSingleton()->FindImage("Character");
-
-    timer = 0.0f;
+    deathImage = ImageManager::GetSingleton()->FindImage("Death");
+    timer = 0.0f; 
+    isSkillOn = false;
     
     FileManager::GetSingleton()->ReadCharacterData(this);
 
-    width = 100.0f;
-    height = 107.0f;
+    width = image->GetFrameWidth() * image->GetRenderRatio();
+    height = image->GetFrameHeight() * image->GetRenderRatio();
 
     shape.left = center.x - width / 2.0f;
     shape.top = center.y - height / 2.0f;
@@ -24,23 +26,53 @@ HRESULT Character::Init()
     shape.bottom = shape.top + height;
 
     moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
+    maxHp = 500;
+    hp = maxHp;
+    maxMp = 500;
+    mp = maxMp;
 
     frame.x = 0;
     frame.y = 9;
+    deathFrame.x = 0;
+    deathFrame.y = 0;
 
     //캐릭터를 처음 시작 했을 때 낙하하게 세팅
+    velocity = 60.0f;
+    jumpAngle = PI / 2.0f;
     state = UNIT_STATE::JUMPING_STATE;
     jumpingState = JUMPING_STATE::JUMPING_DOWN;
     jumpTimer = 0.0f;
-    priorPosY = center.y;
+    priorPos.x = center.x;
+    priorPos.y = center.y;
     isJumpingDown = false;
-
+    hangingState = HANGING_STATE::NOT_ALLOWED;
+    portalState = PORTAL_STATE::NOT_ALLOWED;
     blockedState = BLOCKED_STATE::END_OF_BLOCKED_STATE;
 
-    attackTimer = 0.0f;
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(luck, dex);
+    criticalDamage = 1.5f;
 
     skillManager = new SkillManager();
     skillManager->Init();
+
+    InitHitTimer(false, 0.0f, 2.0f);
+
+    font = CreateFont(20, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("메이플스토리"));
+    damageQueue = new DamageQueue(
+        RGB(127, 31, 245), RGB(77, 11, 155), 
+        CreateFontA(60, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("타이포_꼬맹이마음 L")),
+        CreateFontA(60, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("타이포_꼬맹이마음 B"))
+    );
+
+    //Recovery
+    recoveryInfo = new RecoveryInfo();
+    InitHpRecovery(100, false, 0.0f, 5.0f, 2.0f);
+    InitMpRecovery(100, false, 0.0f, 5.0f);
+    recoveryQueue = new DamageQueue(
+        RGB(0, 85, 255), RGB(0, 85, 255),
+        CreateFontA(60, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("메이플스토리")),
+        CreateFontA(60, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("메이플스토리"))
+    );
 
     CollisionManager::GetSingleton()->RegisterPlayer(this);
 
@@ -49,23 +81,28 @@ HRESULT Character::Init()
 
 void Character::Release()
 {
+    if(font)
+        DeleteObject(font);
     if (skillManager)
         SAFE_RELEASE(skillManager);
+    if (recoveryInfo)
+        SAFE_DELETE(recoveryInfo);
+    if (damageQueue)
+        SAFE_RELEASE(damageQueue);
 }
 
 //TODO 점프 매끄럽게 잘 되게 수정하기
 //TODO 모든 실행에 elapsedTime을 곱해서 프레임에 관계없이 잘 실행되게 수정
 void Character::Update()
 {
-
     //점프상태
     if (jumpingState == JUMPING_STATE::JUMPING_UP)
     {
         jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
-        center.x = center.x + VELOCITY * cos(PI / 2.0f) * jumpTimer;
-        center.y = priorPosY - (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);// 점프타이머(-0.5*GA*점프타이머 + VELOCITY * sin(PI/2.0f))
+        center.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
+        center.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);// 점프타이머(-0.5*GA*점프타이머 + velocity * sin(PI/2.0f))
         
-        if (jumpTimer >= VELOCITY * sin(PI / 2.0f) / (0.5f * GA) / 2.0f)//낙하시간대로 들어서면
+        if (jumpTimer >= velocity * sin(jumpAngle) / (0.5f * GA) / 2.0f)//낙하시간대로 들어서면
         {
             jumpingState = JUMPING_STATE::JUMPING_DOWN;
         }
@@ -73,25 +110,39 @@ void Character::Update()
     else if (jumpingState == JUMPING_STATE::JUMPING_DOWN)
     {
         //점프가 아니라 위에서 갑자기 뚝 떨어질 경우
-        if (jumpTimer < VELOCITY * sin(PI / 2.0f) / (0.5f * GA) / 2.0f) {//낙하시간이 아니라 이륙시간대이면
-            jumpTimer = VELOCITY * sin(PI / 2.0f / (0.5f * GA) / 2.0f);//낙하 시간대으로 바꿔주고
+        if (jumpTimer < velocity * sin(jumpAngle) / (0.5f * GA) / 2.0f) {//낙하시간이 아니라 이륙시간대이면
+            jumpTimer = velocity * sin(jumpAngle / (0.5f * GA) / 2.0f);//낙하 시간대으로 바꿔주고
             //현재 위치에서 포물선의 최고점 위치 만큼 빼준다. -> 아래식서 현재위치가 포물선의 최고점이되게
-            priorPosY = center.y + (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
+            priorPos.x = center.x;
+            priorPos.y = center.y + (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
         }
         jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
-        center.x = center.x + VELOCITY * cos(PI / 2.0f) * jumpTimer;
-        center.y = priorPosY - (VELOCITY * sin(PI / 2.0f) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
+        center.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
+        center.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
     }
     else if(jumpingState == JUMPING_STATE::JUST_LANDED)//방금 착지했을 때
     {
         state = UNIT_STATE::DEFAULT_STATE;
-        jumpTimer = 0.0f;
-        priorPosY = center.y;
+        priorPos.x = center.x;
+        priorPos.y = center.y;
         jumpingState = JUMPING_STATE::END_OF_JUMPING_STATE;
     }
     else
     {
+        isSkillOn = false;
+        velocity = 60.0f;
+        jumpAngle = PI / 2.0f;
         jumpTimer = 0.0f;
+        isJumpingDown = false;
+    }
+    //이동 막아주기
+    if (center.x <= GetCenterToLeft())
+    {
+        center.x = GetCenterToLeft();
+    }
+    else if (center.x >= CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight())
+    {
+        center.x = CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight();
     }
 
 
@@ -105,13 +156,13 @@ void Character::Update()
         HandleWalkingState();
         break;
     case UNIT_STATE::ATTACK_STATE:
-        HandleAttackState();
+        HandleAttackState(skillManager->GetCurrentSkillType());
         break;
     case UNIT_STATE::JUMPING_STATE:
         HandleJumpingState();
         break;
     case UNIT_STATE::JUMPING_ATTACK_STATE:
-        HandleJumpingAttackState();
+        HandleJumpingAttackState(skillManager->GetCurrentSkillType());
         break;
     case UNIT_STATE::LYING_STATE:
         HandleLyingState();
@@ -125,6 +176,12 @@ void Character::Update()
     case UNIT_STATE::HANGING_MOVE_STATE:
         HandleHangingMoveState();
         break;
+    case UNIT_STATE::SKILL_STATE:
+        HandleSkillState();
+        break;
+    case UNIT_STATE::DEAD_STATE:
+        HandleDeadState();
+        break;
     default:
         break;
     }
@@ -134,6 +191,14 @@ void Character::Update()
     {
         //TODO 동전 줍기
     }
+    //skill
+    skillManager->Update();
+    //맞았을때 HitTimer 실행
+    CountHitTimer();
+    CountRecovery();
+    damageQueue->Update();
+    recoveryQueue->Update();
+    //가만히 있을때 RecoveryTimer 실행
 
 }
 
@@ -153,18 +218,30 @@ void Character::HandleDefaultState()
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
     {
-        state = UNIT_STATE::HANGING_STATE;
-        return;
+        //TODO 로프가 있는지 포탈이 있는 지 확인
+        if(hangingState == HANGING_STATE::ALLOWED){
+            state = UNIT_STATE::HANGING_STATE;
+            center.y = center.y - 5;
+            return;
+        }
+        else if (portalState == PORTAL_STATE::ALLOWED)
+        {
+            portalState = PORTAL_STATE::USING;
+            return;
+        }
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
     {
         state = UNIT_STATE::LYING_STATE;
         return;
     }
-    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_CONTROL))
+    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_SHIFT))
     {
-        state = UNIT_STATE::ATTACK_STATE;
-        return;
+        if (skillManager->FireSkill(SKILL_TYPE::LUCKY_SEVEN, this, moveDirection))
+        {
+            state = UNIT_STATE::ATTACK_STATE;
+            return;
+        }
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown('X'))
     {
@@ -191,11 +268,6 @@ void Character::HandleWalkingState()
         state = UNIT_STATE::LYING_STATE;
         return;
     }
-    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_CONTROL))
-    {
-        state = UNIT_STATE::ATTACK_STATE;
-        return;
-    }
     
     if (KeyManager::GetSingleton()->IsKeyUp(VK_LEFT) && KeyManager::GetSingleton()->IsKeyUp(VK_RIGHT))
     {
@@ -207,78 +279,90 @@ void Character::HandleWalkingState()
         state = UNIT_STATE::JUMPING_STATE;
         return;
     }
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_SHIFT))
+    {
+        if (skillManager->FireSkill(SKILL_TYPE::LUCKY_SEVEN, this, moveDirection))
+        {
+            state = UNIT_STATE::ATTACK_STATE;
+            return;
+        }
+    }
     //캐릭터 이동
-    MoveCharacter();
+    Move();
 
     ShowAnimation(UNIT_STATE::WALKING_STATE);//애니메이션 처리
 }
 
-void Character::HandleAttackState()
+void Character::HandleAttackState(SKILL_TYPE skillType)
 {
-    
-    //공격상태에서는 아무키도 먹지 않는다.
-   if(KeyManager::GetSingleton()->IsKeyUp(VK_CONTROL) && attackTimer == 0.0f)
+   //공격상태에서는 아무키도 먹지 않는다.
+   if(skillType == SKILL_TYPE::END_OF_SKILL_TYPE)
     {
         state = UNIT_STATE::DEFAULT_STATE;
         return;
     }
-    //TODO 공격 상태일 때 표창 제대로 나가게 구현, 스킬을 FILE에서 불러오게 처리, 스킬 딜레이 받아와서 딜레이주기
-    ShowAnimation(UNIT_STATE::ATTACK_STATE);//애니메이션 처리
+
+   ShowAnimation(UNIT_STATE::ATTACK_STATE);//애니메이션 처리
 }
 
 void Character::HandleJumpingState()
 {
     if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
     {
-        state = UNIT_STATE::HANGING_STATE;
-        return;
+        if (hangingState == HANGING_STATE::ALLOWED) {
+            state = UNIT_STATE::HANGING_STATE;
+            return;
+        }
     }
-    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
+
+
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
     {
         moveDirection = MOVE_DIRECTION::MOVE_LEFT;
-        MoveCharacter();
+        Move();
+        priorPos.x = center.x;
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_RIGHT))
     {
         moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
-        MoveCharacter();
+        Move();
+        priorPos.x = center.x;
     }
-    else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_CONTROL))
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_SHIFT))
     {
-        state = UNIT_STATE::JUMPING_ATTACK_STATE;
-        return;
+        if (skillManager->FireSkill(SKILL_TYPE::LUCKY_SEVEN, this, moveDirection))
+        {
+            state = UNIT_STATE::ATTACK_STATE;
+            return;
+        }
     }
 
     if (jumpingState == JUMPING_STATE::END_OF_JUMPING_STATE)//처음 점프를 했을 때
     {
         //d = v * t; 포물선 운동
         jumpingState = JUMPING_STATE::JUMPING_UP;
-        priorPosY = center.y;
+        priorPos.x = center.x;
+        priorPos.y = center.y;
         jumpTimer = 0.0f;
+    }
+    if (KeyManager::GetSingleton()->IsStayKeyDown('C'))
+    {
+        state = UNIT_STATE::SKILL_STATE;
+        return;
     }
 
     ShowAnimation(UNIT_STATE::JUMPING_STATE);//애니메이션 처리
-
-    //CalcParabolicMotion();
 }
 
 //점프 중 공격
-void Character::HandleJumpingAttackState()
+void Character::HandleJumpingAttackState(SKILL_TYPE skillType)
 {
-    if (KeyManager::GetSingleton()->IsKeyUp(VK_CONTROL))
+    //공격상태에서는 아무키도 먹지 않는다.
+    if (skillType == SKILL_TYPE::END_OF_SKILL_TYPE)
     {
-        state == UNIT_STATE::JUMPING_STATE;
+        state = UNIT_STATE::JUMPING_STATE;
         return;
     }
-
-    if (jumpingState == JUMPING_STATE::END_OF_JUMPING_STATE)//처음 점프를 했을 때
-    {
-        //d = v * t; 포물선 운동
-        jumpingState = JUMPING_STATE::JUMPING_UP;
-        priorPosY = center.y;
-        jumpTimer = 0.0f;
-    }
-
     ShowAnimation(UNIT_STATE::JUMPING_ATTACK_STATE);//애니메이션 처리
 }
 
@@ -292,18 +376,25 @@ void Character::HandleLyingState()
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_LEFT))
     {
+        isJumpingDown = false;
         moveDirection = MOVE_DIRECTION::MOVE_LEFT;
         state = UNIT_STATE::WALKING_STATE;
         return;
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_RIGHT))
     {
+        isJumpingDown = false;
         moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
         state = UNIT_STATE::WALKING_STATE;
         return;
     }
     else if (KeyManager::GetSingleton()->IsKeyUp(VK_DOWN))
     {
+        if (isJumpingDown) {
+            isJumpingDown = false;
+            state = UNIT_STATE::JUMPING_STATE;
+            return;
+        }
         state = UNIT_STATE::DEFAULT_STATE;
         return;
     }
@@ -333,16 +424,14 @@ void Character::HandleHangingState()
         state = UNIT_STATE::JUMPING_STATE;
         return;
     }
-
+    hangingState = HANGING_STATE::HANGED;
     if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
     {
-        moveDirection = MOVE_DIRECTION::MOVE_UP;
         state = UNIT_STATE::HANGING_MOVE_STATE;
         return;
     }
     else if(KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
     {
-        moveDirection = MOVE_DIRECTION::MOVE_DOWN;
         state = UNIT_STATE::HANGING_MOVE_STATE;
         return;
     }
@@ -361,12 +450,12 @@ void Character::HandleHangingMoveState()
     if (KeyManager::GetSingleton()->IsStayKeyDown(VK_UP))
     {
         moveDirection = MOVE_DIRECTION::MOVE_UP;
-        MoveCharacter();
+        Move();
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_DOWN))
     {
         moveDirection = MOVE_DIRECTION::MOVE_DOWN;
-        MoveCharacter();
+        Move();
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown('X'))
     {
@@ -383,31 +472,49 @@ void Character::HandleHangingMoveState()
     ShowAnimation(UNIT_STATE::HANGING_MOVE_STATE);
 }
 
-//캐릭터 이동
-void Character::MoveCharacter()
+void Character::HandleSkillState()
 {
-    //플레이어 걷기
-    if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
-    {
-        if (center.x - moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() <= width / 2.0f || blockedState == BLOCKED_STATE::LEFT)
-            return;
-        center.x -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+    if(!isSkillOn){
+        if (KeyManager::GetSingleton()->IsStayKeyDown('C'))
+        {
+            if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
+            {
+                jumpAngle = PI / 2.0f + DegToRad(45);
+            }
+            else if(moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
+            {
+                jumpAngle = PI / 2.0f - DegToRad(45);
+            }
+            velocity = 100.0f;
+            jumpTimer = 0.0f;
+            jumpingState = JUMPING_STATE::JUMPING_UP;
+            priorPos.x = center.x;
+            priorPos.y = center.y;
+
+            //skillManager->FireSkill("flashJump", shape);
+        }
+        isSkillOn = true;
     }
-    else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
-    {
-        if (center.x + moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() >= CameraManager::GetSingleton()->GetBG()->GetWidth() || blockedState == BLOCKED_STATE::RIGHT)
-            return;
-        center.x += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
-    }
-    else if (moveDirection == MOVE_DIRECTION::MOVE_UP)
-    {
-        center.y -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
-    }
-    else if (moveDirection == MOVE_DIRECTION::MOVE_DOWN)
-    {
-        center.y += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
-    }
+    //TODO SKILL_STATE로 구현 및 수정 요망
+    ShowAnimation(UNIT_STATE::JUMPING_STATE);
 }
+
+void Character::HandleDeadState()
+{
+    if (KeyManager::GetSingleton()->IsStayKeyDown(VK_RETURN))
+    {
+        state = UNIT_STATE::DEFAULT_STATE;
+        //Init deathFrame
+        deathFrame.x = 0;
+        deathFrame.y = 0;
+        hp = maxHp/4.0f;
+        return;
+    }
+    ShowAnimation(UNIT_STATE::DEAD_STATE);
+    DropTheTombstone();
+}
+
+//캐릭터 이동
 
 //애니메이션 그리기
 void Character::ShowAnimation(UNIT_STATE unitState)
@@ -434,37 +541,46 @@ void Character::ShowAnimation(UNIT_STATE unitState)
         return;
     }
 
-
-    //TODO 상태 변경 나누는 기준 제대로 바꾸기
-    //상태 변경이 없었을 때
     timer += TimerManager::GetSingleton()->GetElapsedTime();
     if (timer >= 0.2f)
     {
-        if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1)
-            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3)) )
+        if (frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3)) 
         {
-            frame.x++;
-            if (frame.x >= image->GetVMaxFrameX(frame.y))
+            if (nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) && nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_2) && nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3))
             {
                 frame.x = 0;
-                frame.y++;
-                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_3))
+                frame.y = nextFrameY;
+            }
+            else
+            {
+                frame.x++;
+                if (frame.x >= image->GetVMaxFrameX(frame.y))
                 {
-                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1);
+                    frame.x--;
+                    if (state == UNIT_STATE::ATTACK_STATE)
+                        state = UNIT_STATE::DEFAULT_STATE;
+                    else if (state == UNIT_STATE::JUMPING_ATTACK_STATE)
+                        state = UNIT_STATE::JUMPING_STATE;
                 }
             }
         }
-        else if (nextFrameY == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1)
-            && (frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3)))
+        else if (frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_2) || frame.y == static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
         {
-            frame.x++;
-            if (frame.x >= image->GetVMaxFrameX(frame.y))
+            if (nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) && nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_2) && nextFrameY != static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
             {
                 frame.x = 0;
-                frame.y++;
-                if (frame.y > static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_3))
+                frame.y = nextFrameY;
+            }
+            else
+            {
+                frame.x++;
+                if (frame.x >= image->GetVMaxFrameX(frame.y))
                 {
-                    frame.y = static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1);
+                    frame.x--;
+                    if (state == UNIT_STATE::ATTACK_STATE)
+                        state = UNIT_STATE::DEFAULT_STATE;
+                    else if (state == UNIT_STATE::JUMPING_ATTACK_STATE)
+                        state = UNIT_STATE::JUMPING_STATE;
                 }
             }
         }
@@ -486,6 +602,33 @@ void Character::ShowAnimation(UNIT_STATE unitState)
     }
 }
 
+void Character::DropTheTombstone()
+{
+    if (deathFrame.y >= deathImage->GetMaxFrameY() - 1)
+        return;
+    if (deathFrame.x == 0 && deathFrame.y == 0)
+    {
+        tombstonePos.x = shape.left - width/4.0f;
+        tombstonePos.y = shape.top - WINSIZE_Y/2.0f;
+    }
+    deathTimer += TimerManager::GetSingleton()->GetElapsedTime();
+    if(deathTimer >= 0.1f)
+    { 
+        deathFrame.x++;
+        tombstonePos.y += WINSIZE_Y / 12.0f * 2;
+        if (tombstonePos.y >= shape.top + height/2.0f)
+        {
+            tombstonePos.y = shape.top + height / 2.0f;
+        }
+        if (deathFrame.x >= deathImage->GetVMaxFrameX(deathFrame.y))
+        {
+            deathFrame.x = 0;
+            deathFrame.y++;
+        }
+        deathTimer = 0.0f;
+    }
+}
+
 //유닛의 상태에 해당하는 애니메이션 시작 Y프레임을 반환
 CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
 {
@@ -503,18 +646,18 @@ CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
         break;
     case UNIT_STATE::ATTACK_STATE:
         if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
-            result = CHARACTER_FRAME_Y::LEFT_ATTACK_1;
+            result = CHARACTER_FRAME_Y(static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) + rand() % 3);
         else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
-            result = CHARACTER_FRAME_Y::RIGHT_ATTACK_1;
+            result = CHARACTER_FRAME_Y(static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) + rand() % 3);
         break;
     case UNIT_STATE::JUMPING_STATE:
         result = CHARACTER_FRAME_Y::JUMP;
         break;
     case UNIT_STATE::JUMPING_ATTACK_STATE:
         if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
-            result = CHARACTER_FRAME_Y::LEFT_ATTACK_1;
+            result = CHARACTER_FRAME_Y(static_cast<int>(CHARACTER_FRAME_Y::LEFT_ATTACK_1) + rand() % 3);
         else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
-            result = CHARACTER_FRAME_Y::RIGHT_ATTACK_1;
+            result = CHARACTER_FRAME_Y(static_cast<int>(CHARACTER_FRAME_Y::RIGHT_ATTACK_1) + rand() % 3);
         break;
     case UNIT_STATE::LYING_STATE:
         result = CHARACTER_FRAME_Y::LYING;
@@ -529,9 +672,32 @@ CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
     case UNIT_STATE::HANGING_MOVE_STATE:
         result = CHARACTER_FRAME_Y::HANGING_1;
         break;
+    case UNIT_STATE::DEAD_STATE:
+        result = CHARACTER_FRAME_Y::DEATH;
+        break;
     default:
         break;
     }
 
     return result;
+}
+
+void Character::Render(HDC hdc)
+{
+    if (state == UNIT_STATE::DEAD_STATE) 
+    {
+        deathImage->FrameRender(hdc, tombstonePos.x, tombstonePos.y, deathFrame.x, deathFrame.y, false);
+        image->AlphaFrameRender(hdc, shape.left, shape.top, frame.x, frame.y, false);
+        return;
+    }
+    if (isHit && (int)(hitTimer * 10.0f) % 2 == 0)
+    {
+        //image->BlinkRender(hdc, shape.left, shape.top, frame.x, frame.y, false);
+    }
+    else
+    {
+        image->FrameRender(hdc, shape.left, shape.top, frame.x, frame.y, false);
+    }
+    if (skillManager)
+        skillManager->Render(hdc);
 }

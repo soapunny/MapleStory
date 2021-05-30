@@ -1,6 +1,10 @@
 #pragma once
 #include "GameNode.h"
 
+class Image;
+class Shuriken;
+class Unit;
+enum class MOVE_DIRECTION;
 class Skill:public GameNode
 {
 private:
@@ -14,28 +18,41 @@ private:
 	int hpConsumption;
 	int mpConsumption;
 
+	int attackCount;
 	float skillDelay;
 	float skillRange;
 	bool needShuriken;
+	int shurikenCnt;
 
-	Image* image1;
-	Image* image2;
+	MOVE_DIRECTION direction;
+
+	vector<Shuriken*> vShurikens;
+
+	float skillTimer;
+
+	Image* image;
 
 	RECT shape;
 	POINT frame;
-	POINT weaponFrame;
 
 	FPOINT ownerPos;
 
 public:
-	virtual HRESULT Init();			// 멤버 변수의 초기화, 메모리 할당
-	virtual void Release();			// 메모리 해제
-	virtual void Update();			// 프레임 단위로 게임 로직 실행 (데이터 변동)
-	virtual void Render(HDC hdc);	// 프레임 단위로 출력 (이미지, 텍스트 등)
+	inline virtual ~Skill() {}
 
-	bool GetFired() { return isFired; }
-	float GetSkillDelay() { return skillDelay; }
+	virtual HRESULT Init(string skillName);			
+	virtual void Release();			
+	virtual void Update();			
+	virtual void Render(HDC hdc);	
 
-	void FireSkill(RECT ownerShape);
+	virtual inline bool GetFired() { return isFired; }
+	virtual inline float GetSkillDelay() { return skillDelay; }
+	virtual inline vector<Shuriken*> GetVShurikens() { return vShurikens; }
+	virtual inline bool GetNeedShuriken() { return needShuriken; }
+	virtual inline float GetDamageRatio() { return damageRatio; }
+	virtual inline float GetMpConsumption() { return mpConsumption; }
+
+	void FireSkill(Unit* ownerShape, MOVE_DIRECTION direction);
+	
 };
 

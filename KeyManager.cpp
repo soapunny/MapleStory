@@ -1,5 +1,5 @@
-#include "config.h"
-#include "KeyManager.h"
+#pragma once
+#include "Managers.h"
 
 HRESULT KeyManager::Init()
 {

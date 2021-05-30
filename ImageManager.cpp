@@ -1,4 +1,5 @@
-#include "ImageManager.h"
+#pragma once
+#include "Managers.h"
 #include "Image.h"
 
 HRESULT ImageManager::Init()
@@ -74,7 +75,7 @@ Image* ImageManager::AddImage(string key, const char* fileName, const char* subF
     return image;
 }
 
-Image* ImageManager::AddImage(string key, const char* fileName, int width, int height, int maxFrameX, int maxFrameY, bool isTransparent, COLORREF transColor)
+Image* ImageManager::AddImage(string key, const char* fileName, int width, int height, int maxFrameX, int maxFrameY, bool isTransparent, COLORREF transColor, bool isDualDC)
 {
     Image* image = nullptr;
 
@@ -87,8 +88,7 @@ Image* ImageManager::AddImage(string key, const char* fileName, int width, int h
 
     // 없으면 생성 후 맵에 추가
     image = new Image();
-    if (FAILED(image->Init(fileName, width, height,
-        maxFrameX, maxFrameY, isTransparent, transColor)))
+    if (FAILED(image->Init(fileName, width, height, maxFrameX, maxFrameY, isTransparent, transColor, isDualDC)))
     {
         image->Release();
         delete image;
@@ -100,7 +100,7 @@ Image* ImageManager::AddImage(string key, const char* fileName, int width, int h
     return image;
 }
 
-Image* ImageManager::AddImage(string key, const char* fileName, int width, int height, int maxFrameX, vector<int> vMaxFrameX, int maxFrameY, bool isTransparent, COLORREF transColor)
+Image* ImageManager::AddImage(string key, const char* fileName, int width, int height, int maxFrameX, vector<int> vMaxFrameX, int maxFrameY, bool isTransparent, COLORREF transColor, float renderRatio)
 {
     Image* image = nullptr;
 
@@ -113,8 +113,7 @@ Image* ImageManager::AddImage(string key, const char* fileName, int width, int h
 
     // 없으면 생성 후 맵에 추가
     image = new Image();
-    if (FAILED(image->Init(fileName, width, height,
-        maxFrameX, vMaxFrameX, maxFrameY, isTransparent, transColor)))
+    if (FAILED(image->Init(fileName, width, height, maxFrameX, vMaxFrameX, maxFrameY, isTransparent, transColor, renderRatio)))
     {
         image->Release();
         delete image;

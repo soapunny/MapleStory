@@ -8,6 +8,7 @@ class TimerManager : public Singleton<TimerManager>
 private:
 	Timer* timer;
 	char szText[128];
+	HFONT font;
 
 public:
 	HRESULT Init();

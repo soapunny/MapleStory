@@ -19,8 +19,11 @@ public:
 		HDC hSubDC;			// 점프에 사용될 DC
 		HBITMAP hBitmap;	// 이미지 정보
 		HBITMAP hOldBit;	// 기존 이미지 정보
+		int subDCWidth;
+		int subDCHeight;
 		int width;			// 이미지 가로 크기
 		int height;			// 이미지 세로 크기
+		float renderRatio;
 		BYTE loadType;		// 로드 타입
 
 		// 알파블랜드
@@ -43,8 +46,11 @@ public:
 			hMemDC = NULL;
 			hBitmap = NULL;
 			hOldBit = NULL;
+			subDCWidth = 0;
+			subDCHeight = 0;
 			width = 0;
 			height = 0;
+			renderRatio = 1.0f;
 			loadType = IMAGE_LOAD_KIND::EMPTY;
 
 			hBlendDC = NULL;
@@ -66,6 +72,8 @@ private:
 	bool isTransparent;
 	COLORREF transColor;
 
+	bool isRenderReady;
+
 	BLENDFUNCTION blendFunc;
 
 public:
@@ -79,24 +87,25 @@ public:
 
 	// 파일로부터 이미지를 로드하는 함수
 	HRESULT Init(const char* fileName, int width, int height,
-		int maxFrameX, int maxFrameY,
-		bool isTransparent = FALSE, COLORREF transColor = FALSE);
+		int maxFrameX, int maxFrameY, bool isTransparent = FALSE, COLORREF transColor = FALSE, bool isDualDC = FALSE);
+
 	// 가변 크기 maxFrameX를 사용 시
 	HRESULT Init(const char* fileName, int width, int height,
 		int maxFrameX, vector<int> vMaxFrameX, int maxFrameY,
-		bool isTransparent = FALSE, COLORREF transColor = FALSE);
+		bool isTransparent = FALSE, COLORREF transColor = FALSE, float renderRatio = 1.0f);
 
 	// 화면에 출력
-	void Render(HDC hdc, int destX = 0, int destY = 0,
-		bool isCenterRenderring = false);
+	void Render(HDC hdc, int destX = 0, int destY = 0, bool isCenterRenderring = false);
+	void Render(HDC hdc, int destX, int destY, int width, int height, bool isCenterRenderring = false);
 	void RenderMiniMap(HDC hdc, int destX, int destY, int width, int height, FPOINT characterCenterPos);
 	void RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring = false);
-	void FrameRender(HDC hdc, int destX, int destY,
-		int currFrameX, int currFrameY, bool isCenterRenderring = false, int size = 1);
+	void FrameRender(HDC hdc, int destX, int destY, int currFrameX, int currFrameY, bool isCenterRenderring = false);
 	void FrameRender(HDC hdc, int destX, int destY, int width, int height, int currFrameX, int currFrameY, bool isCenterRenderring = false);
-	void AlphaRender(HDC hdc, int destX, int destY,
-		bool isCenterRenderring = false);
+	void AlphaRender(HDC hdc, int destX, int destY, bool isCenterRenderring = false);
+	void AlphaFrameRender(HDC hdc, int destX, int destY, int currFrameX, int currFrameY, bool isCenterRenderring = false);
 
+	void DamageRender(HDC hdc, int destX = 0, int destY = 0, bool isCenterRenderring = false, bool isTransparent = false);
+	void SetNumberRender(int* damageArray, int damageArraySize);
 
 	void Release();
 
@@ -124,6 +133,10 @@ public:
 	int GetMaxFrameX() { return this->imageInfo->maxFrameX; }
 	int GetMaxFrameY() { return this->imageInfo->maxFrameY; }
 	int GetVMaxFrameX(int frameY) { return this->imageInfo->vMaxFrameX[frameY]; }
+	bool GetRenderReady() { return isRenderReady; }
+	void SetRenderReady(bool isRenderReady) { this->isRenderReady = isRenderReady; }
+
+	float GetRenderRatio() { return this->imageInfo->renderRatio; }
 
 	IMAGE_INFO* const  GetImageInfo() { return this->imageInfo; }
 };

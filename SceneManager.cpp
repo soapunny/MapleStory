@@ -1,4 +1,5 @@
-#include "SceneManager.h"
+#pragma once
+#include "Managers.h"
 #include "GameNode.h"
 
 DWORD CALLBACK LoadingThread(LPVOID pvParam)

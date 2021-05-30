@@ -145,7 +145,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CalcUtil.cpp" />
+    <ClCompile Include="DamageQueue.cpp" />
     <ClCompile Include="FirstTownScene.cpp" />
+    <ClCompile Include="InGameScene.cpp" />
+    <ClCompile Include="Mushmom.cpp" />
     <ClCompile Include="MushroomFieldScene.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="CameraManager.cpp" />
@@ -161,16 +165,23 @@
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MonsterManager.cpp" />
+    <ClCompile Include="NPC.cpp" />
+    <ClCompile Include="NPCManager.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="Shuriken.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="SkillManager.cpp" />
     <ClCompile Include="TimerManager.cpp" />
     <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="TownScene.cpp" />
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CalcUtil.h" />
+    <ClInclude Include="DamageQueue.h" />
     <ClInclude Include="FirstTownScene.h" />
+    <ClInclude Include="InGameScene.h" />
+    <ClInclude Include="Managers.h" />
+    <ClInclude Include="Mushmom.h" />
     <ClInclude Include="MushroomFieldScene.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CameraManager.h" />
@@ -187,13 +198,15 @@
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterManager.h" />
+    <ClInclude Include="NPC.h" />
+    <ClInclude Include="NPCManager.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="Shuriken.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Skill.h" />
     <ClInclude Include="SkillManager.h" />
     <ClInclude Include="TimerManager.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="TownScene.h" />
     <ClInclude Include="Unit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

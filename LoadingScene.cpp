@@ -1,5 +1,6 @@
+#pragma once
 #include "LoadingScene.h"
-#include "ImageManager.h"
+#include "Managers.h"
 #include "Image.h"
 
 HRESULT LoadingScene::Init()

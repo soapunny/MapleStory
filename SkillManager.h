@@ -1,21 +1,32 @@
 #pragma once
 #include "GameNode.h"
 
+enum class SKILL_TYPE{DEFAULT_SHURIKEN_ATTACK, FLASH_JUMP, LUCKY_SEVEN, SHADE_SPLIT, SHURIKEN_BURST, SUDDEN_RAID, WIND_TALISMAN, END_OF_SKILL_TYPE};
+
 class Skill;
+class Unit;
+enum class MOVE_DIRECTION;
 class SkillManager:public GameNode
 {
 private:
-	map<string, Skill*> mSkillData;
+	map<SKILL_TYPE, Skill*> mSkillData;
+	SKILL_TYPE currentSkillType;
+	Skill* currentSkill;
+	float currentSkillTimer;
+
+	bool isOn;
 
 public:
-	virtual HRESULT Init();			// 멤버 변수의 초기화, 메모리 할당
-	virtual void Release();			// 메모리 해제
-	virtual void Update();			// 프레임 단위로 게임 로직 실행 (데이터 변동)
-	virtual void Render(HDC hdc);	// 프레임 단위로 출력 (이미지, 텍스트 등)
+	virtual HRESULT Init();			
+	virtual void Release();			
+	virtual void Update();			
+	virtual void Render(HDC hdc);
 
-	void FireSkill(string skillName, RECT playerShape);
-	
-	float GetSkillDelay(string skillName);
+	bool FireSkill(SKILL_TYPE skillType, Unit* owner, MOVE_DIRECTION direction);
+
+	inline SKILL_TYPE GetCurrentSkillType() { return currentSkillType; }
+	inline Skill* GetCurrentSkill() { return currentSkill; }
+	inline bool GetOn() { return isOn; }
 
 	virtual ~SkillManager() {}
 };

@@ -103,3 +103,4 @@ inline void SetClientRect(HWND hWnd, int width, int height)
 	SetWindowPos(hWnd, NULL, 0, 0, crt.right - crt.left, crt.bottom - crt.top,
 		SWP_NOMOVE | SWP_NOZORDER);
 }
+

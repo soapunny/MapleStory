@@ -40,6 +40,21 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="MainGame\Unit\Monster">
+      <UniqueIdentifier>{b20837ad-b8d7-4b9f-a9fc-2a252a7b3e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Unit\NPC">
+      <UniqueIdentifier>{d9f66bc0-d695-4574-ab56-3675f506fee4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Unit\Character">
+      <UniqueIdentifier>{7302e347-4e0e-46d8-a5b1-0d4e38443eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Unit\Util">
+      <UniqueIdentifier>{377c02a5-5b50-470f-a3a6-353afeda8617}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\Skill\Shuriken">
+      <UniqueIdentifier>{9fefd2f6-648f-4c4e-ae77-7e20ad5c68ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,16 +87,10 @@
     <ClCompile Include="TimerManager.cpp">
       <Filter>2D_Framework\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="TownScene.cpp">
-      <Filter>MainGame\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="LoadingScene.cpp">
       <Filter>MainGame\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Unit.cpp">
-      <Filter>MainGame\Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="Character.cpp">
       <Filter>MainGame\Unit</Filter>
     </ClCompile>
     <ClCompile Include="FileManager.cpp">
@@ -99,17 +108,41 @@
     <ClCompile Include="CollisionManager.cpp">
       <Filter>2D_Framework\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="Monster.cpp">
-      <Filter>MainGame\Unit</Filter>
-    </ClCompile>
-    <ClCompile Include="MonsterManager.cpp">
-      <Filter>MainGame\Unit</Filter>
-    </ClCompile>
     <ClCompile Include="MushroomFieldScene.cpp">
       <Filter>MainGame\Scene</Filter>
     </ClCompile>
     <ClCompile Include="FirstTownScene.cpp">
       <Filter>MainGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterManager.cpp">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Mushmom.cpp">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="Character.cpp">
+      <Filter>MainGame\Unit\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>MainGame\Unit\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCManager.cpp">
+      <Filter>MainGame\Unit\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="DamageQueue.cpp">
+      <Filter>MainGame\Unit\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameScene.cpp">
+      <Filter>MainGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Shuriken.cpp">
+      <Filter>MainGame\Skill\Shuriken</Filter>
+    </ClCompile>
+    <ClCompile Include="CalcUtil.cpp">
+      <Filter>헤더 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,16 +179,10 @@
     <ClInclude Include="TimerManager.h">
       <Filter>2D_Framework\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="TownScene.h">
-      <Filter>MainGame\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="LoadingScene.h">
       <Filter>MainGame\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Unit.h">
-      <Filter>MainGame\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="Character.h">
       <Filter>MainGame\Unit</Filter>
     </ClInclude>
     <ClInclude Include="FileManager.h">
@@ -176,17 +203,44 @@
     <ClInclude Include="CommonFunction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Monster.h">
-      <Filter>MainGame\Unit</Filter>
-    </ClInclude>
-    <ClInclude Include="MonsterManager.h">
-      <Filter>MainGame\Unit</Filter>
-    </ClInclude>
     <ClInclude Include="MushroomFieldScene.h">
       <Filter>MainGame\Scene</Filter>
     </ClInclude>
     <ClInclude Include="FirstTownScene.h">
       <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterManager.h">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Mushmom.h">
+      <Filter>MainGame\Unit\Monster</Filter>
+    </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>MainGame\Unit\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC.h">
+      <Filter>MainGame\Unit\NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCManager.h">
+      <Filter>MainGame\Unit\NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="DamageQueue.h">
+      <Filter>MainGame\Unit\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameScene.h">
+      <Filter>MainGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Shuriken.h">
+      <Filter>MainGame\Skill\Shuriken</Filter>
+    </ClInclude>
+    <ClInclude Include="CalcUtil.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 // main.cpp
 #include "config.h"
+#include "Managers.h"
 #include "CommonFunction.h"
 #include "MainGame.h"
 

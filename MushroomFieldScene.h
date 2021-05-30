@@ -1,19 +1,13 @@
 #pragma once
-#include "GameNode.h"
+#include "InGameScene.h"
 #include "Unit.h"
 
-class Image;
-class MushroomFieldScene : public GameNode
+
+class MushroomFieldScene : public InGameScene
 {
 private:
-	Unit* character;
-	HBRUSH hBrush;
+	virtual void MoveSceneUsingPortal();
 
-	Image* map;
-	Image* minimapUI;
-	Image* minimap;
-
-	virtual void RenderMiniMap(HDC hdc);
 public:
 	virtual HRESULT Init();			// 멤버 변수의 초기화, 메모리 할당
 	virtual void Release();			// 메모리 해제

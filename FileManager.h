@@ -4,7 +4,10 @@
 #include <string>
 using namespace std;
 
+enum class FILE_NAME{CHARACTER, MONSTER, SKILL, NPC, MAP, END_OF_FILE_NAME};
+
 class Character;
+class Monster;
 class FileManager : public Singleton<FileManager>
 {
 private:
@@ -19,7 +22,7 @@ public:
 	void Init();
 
 	void ReadCharacterData(Character* character);
-	void ReadMonsterData();
+	void ReadMonsterData(Monster* monster);
 	void ReadSkillData();
 	void ReadNPCData();
 	void ReadMapData();
