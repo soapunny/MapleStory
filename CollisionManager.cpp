@@ -91,12 +91,12 @@ bool CollisionManager::CheckLeftPixelCollision(Unit* unit, float r)
     int R = 0;
     int G = 0;
     int B = 0;
-    float currPosX = unit->GetCenter().x - (unit->GetCenterToLeft());
-    float currPosY = unit->GetCenter().y + unit->GetCenterToBottom() / 2.0f;
+    float currPosX = unit->GetWorldPos().x - (unit->GetCenterToLeft());
+    float currPosY = unit->GetWorldPos().y + unit->GetCenterToBottom() / 2.0f;
 
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        for(int j = currPosY - 1; j <= currPosY + 1; j++)
+        for(int j = (int)(currPosY - 1); j <= (int)(currPosY + 1); j++)
         {
             COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, j);
 
@@ -107,7 +107,7 @@ bool CollisionManager::CheckLeftPixelCollision(Unit* unit, float r)
             if (CheckBlock(R, G, B) )
             {
                 //위치 고정
-                //unit->SetCenterX(i + (unit->GetWidth() / 2.0f));
+                //unit->SetWorldPosX(i + (unit->GetWidth() / 2.0f));
                 player->SetBlockedState(BLOCKED_STATE::LEFT);
 
                 return true;
@@ -128,11 +128,11 @@ bool CollisionManager::CheckRightPixelCollision(Unit* unit, float r)
     int R = 0;
     int G = 0;
     int B = 0;
-    float currPosX = unit->GetCenter().x + (unit->GetCenterToRight());
+    float currPosX = unit->GetWorldPos().x + (unit->GetCenterToRight());
 
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, unit->GetCenter().y + unit->GetCenterToBottom() / 2.0f);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, (int)(unit->GetWorldPos().y + unit->GetCenterToBottom() / 2.0f) );
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -141,7 +141,7 @@ bool CollisionManager::CheckRightPixelCollision(Unit* unit, float r)
         if (CheckBlock(R, G, B))
         {
             //위치 고정
-            //unit->SetCenterX(i - (unit->GetWidth() / 2.0f));
+            //unit->SetWorldPosX(i - (unit->GetWidth() / 2.0f));
             player->SetBlockedState(BLOCKED_STATE::RIGHT);
 
             return true;
@@ -159,11 +159,11 @@ bool CollisionManager::CheckTopPixelCollision(Unit* unit, float r)
     int R = 0;
     int G = 0;
     int B = 0;
-    float currPosY = unit->GetCenter().y - r;
+    float currPosY = unit->GetWorldPos().y - r;
 
-    for (int i = currPosY - 2; i <= currPosY + 2; i++)
+    for (int i = (int)(currPosY - 2); i <= (int)(currPosY + 2); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), unit->GetCenter().x, i);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), (int)(unit->GetWorldPos().x), i);
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -172,7 +172,7 @@ bool CollisionManager::CheckTopPixelCollision(Unit* unit, float r)
         if (CheckBlock(R, G, B))
         {
             //위치 고정
-            unit->SetCenterY(i + r);
+            unit->SetWorldPosY(i + r);
 
             return true;
         }
@@ -190,11 +190,11 @@ bool CollisionManager::CheckBottomPixelCollision(Unit* unit, float r)
     int R = 0;
     int G = 0;
     int B = 0;
-    float currPosY = unit->GetCenter().y + r;
+    float currPosY = unit->GetWorldPos().y + r;
 
-    for (int i = currPosY - 2; i <= currPosY + 2; i++)
+    for (int i = (int)(currPosY - 2); i <= (int)(currPosY + 2); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), unit->GetCenter().x, i);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), (int)(unit->GetWorldPos().x), i);
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -203,7 +203,7 @@ bool CollisionManager::CheckBottomPixelCollision(Unit* unit, float r)
         if (CheckBlock(R, G, B) || (CheckIsland(R, G, B) && !unit->GetJumpingDown()))
         {
             //위치 고정
-            unit->SetCenterY(i - r);
+            unit->SetWorldPosY(i - r);
 
             return true;
         }
@@ -218,10 +218,10 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
     int B = 0;
 
     //왼쪽 로프확인
-    float currPosX = unit->GetCenter().x - (unit->GetCenterToLeft()*3.0f / 5.0f);
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    float currPosX = unit->GetWorldPos().x - (unit->GetCenterToLeft()*3.0f / 5.0f);
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, unit->GetCenter().y + 20);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, (int)(unit->GetWorldPos().y + 20));
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -231,17 +231,17 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
         {
             if (unit->GetUnitState() == UNIT_STATE::HANGING_STATE || unit->GetUnitState() == UNIT_STATE::HANGING_MOVE_STATE)
             {
-                unit->SetCenterX(i);
+                unit->SetWorldPosX((float)i);
             }
             return true;
         }
     }
 
     //오른쪽 로프확인
-    currPosX = unit->GetCenter().x + (unit->GetCenterToRight() * 3.0f / 5.0f);
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    currPosX = unit->GetWorldPos().x + (unit->GetCenterToRight() * 3.0f / 5.0f);
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, unit->GetCenter().y + 20);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, (int)( unit->GetWorldPos().y + 20));
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -251,17 +251,17 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
         {
             if (unit->GetUnitState() == UNIT_STATE::HANGING_STATE || unit->GetUnitState() == UNIT_STATE::HANGING_MOVE_STATE)
             {
-                unit->SetCenterX(i);
+                unit->SetWorldPosX((float)i);
             }
             return true;
         }
     }
 
     //중앙 로프확인
-    currPosX = unit->GetCenter().x;
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    currPosX = unit->GetWorldPos().x;
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, unit->GetCenter().y + 20);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, (int)(unit->GetWorldPos().y + 20) );
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -271,7 +271,7 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
         {
             if (unit->GetUnitState() == UNIT_STATE::HANGING_STATE || unit->GetUnitState() == UNIT_STATE::HANGING_MOVE_STATE)
             {
-                unit->SetCenterX(i);
+                unit->SetWorldPosX((float)i);
             }
             return true;
         }
@@ -280,14 +280,14 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
     // 아래쪽 로프 확인
     float currPosY = 0.0f;
     if (unit->GetUnitState() == UNIT_STATE::LYING_STATE)
-        currPosY = unit->GetCenter().y + unit->GetCenterToBottom() + 20;
+        currPosY = unit->GetWorldPos().y + unit->GetCenterToBottom() + 20;
     else
-        currPosY = unit->GetCenter().y + unit->GetCenterToBottom();
+        currPosY = unit->GetWorldPos().y + unit->GetCenterToBottom();
 
 
-    for (int i = currPosY - 1; i <= currPosY + 1; i++)
+    for (int i = (int)(currPosY - 1); i <= (int)(currPosY + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), unit->GetCenter().x, i);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), (int)(unit->GetWorldPos().x), i);
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -297,7 +297,7 @@ bool CollisionManager::CheckRopePixelCollision(Unit* unit)
         {
             if (unit->GetUnitState() == UNIT_STATE::LYING_STATE){
                 unit->SetState(UNIT_STATE::HANGING_MOVE_STATE);
-                unit->SetCenterY(i + 20);
+                unit->SetWorldPosY(i + 20.0f);
             }
             //unit->SetHangingState(HANGING_STATE::BOTTOM_ALLOWED);
             return true;
@@ -311,11 +311,11 @@ bool CollisionManager::CheckPortalPixelCollision(Unit* unit)
     int R = 0;
     int G = 0;
     int B = 0;
-    float currPosX = unit->GetCenter().x;
+    float currPosX = unit->GetWorldPos().x;
 
-    for (int i = currPosX - 1; i <= currPosX + 1; i++)
+    for (int i = (int)(currPosX - 1); i <= (int)(currPosX + 1); i++)
     {
-        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, unit->GetCenter().y + 20);
+        COLORREF color = GetPixel(CameraManager::GetSingleton()->GetBG()->GetSubDC(), i, (int)(unit->GetWorldPos().y + 20));
 
         R = GetRValue(color);
         G = GetGValue(color);
@@ -333,31 +333,31 @@ void CollisionManager::CheckPlayerEnemiesCollision()
 {
     if (player && player->GetUnitState() != UNIT_STATE::DEAD_STATE && !player->GetHit())
     {
-        RECT playerRect = { player->GetCenter().x - player->GetCenterToLeft(),
-                            player->GetCenter().y - player->GetCenterToTop(),
-                            player->GetCenter().x + player->GetCenterToRight(),
-                            player->GetCenter().y + player->GetCenterToBottom() };
+        RECT playerRect = { (LONG)(player->GetWorldPos().x - player->GetCenterToLeft()),
+                            (LONG)(player->GetWorldPos().y - player->GetCenterToTop()),
+                            (LONG)(player->GetWorldPos().x + player->GetCenterToRight()),
+                            (LONG)(player->GetWorldPos().y + player->GetCenterToBottom()) };
         for (Unit* enemy : *vEnemyUnits)
         {
             if (enemy->GetUnitState() == UNIT_STATE::DEAD_STATE || enemy->GetUnitState() == UNIT_STATE::END_OF_UNIT_STATE)
                 continue;
-            RECT enemyRect = {  enemy->GetCenter().x - enemy->GetCenterToLeft(),
-                                enemy->GetCenter().y - enemy->GetCenterToTop(),
-                                enemy->GetCenter().x + enemy->GetCenterToRight(),
-                                enemy->GetCenter().y + enemy->GetCenterToBottom() };
+            RECT enemyRect = { (LONG)(enemy->GetWorldPos().x - enemy->GetCenterToLeft()),
+                                (LONG)(enemy->GetWorldPos().y - enemy->GetCenterToTop()),
+                                (LONG)(enemy->GetWorldPos().x + enemy->GetCenterToRight()),
+                                (LONG)(enemy->GetWorldPos().y + enemy->GetCenterToBottom()) };
             if (IntersectRect(&commonRect, &playerRect, &enemyRect) )
             {
-                if(player->GetCenter().x < enemy->GetCenter().x)
+                if(player->GetWorldPos().x < enemy->GetWorldPos().x)
                 { 
-                    if(player->GetCenter().x - player->GetWidth() / 2.0f >= 0 )
-                        player->SetCenterX(player->GetCenter().x - (player->GetWidth()/2.0f));
+                    if(player->GetWorldPos().x - player->GetWidth() / 2.0f >= 0 )
+                        player->SetWorldPosX(player->GetWorldPos().x - (player->GetWidth()/2.0f));
                 }
                 else
                 {
-                    if (player->GetCenter().x + player->GetWidth() / 2.0f <= CameraManager::GetSingleton()->GetBG()->GetWidth())
-                        player->SetCenterX(player->GetCenter().x + (player->GetWidth() / 2.0f));
+                    if (player->GetWorldPos().x + player->GetWidth() / 2.0f <= CameraManager::GetSingleton()->GetBG()->GetWidth())
+                        player->SetWorldPosX(player->GetWorldPos().x + (player->GetWidth() / 2.0f));
                 }
-                player->SetCenterY(player->GetCenter().y - (player->GetHeight()));
+                player->SetWorldPosY(player->GetWorldPos().y - (player->GetHeight()));
                 //TODO 플레이어 에너지 감소 및 데미지 이펙트
                 ProcessDamage(enemy, player);
                 player->SetJumpingState(JUMPING_STATE::JUMPING_DOWN);
@@ -368,17 +368,17 @@ void CollisionManager::CheckPlayerEnemiesCollision()
                 RECT attackBox = enemy->GetAttackBox();
                 if (IntersectRect(&commonRect, &playerRect, &attackBox))//몬스터의 공격에 맞았을 경우
                 {
-                    if (player->GetCenter().x < enemy->GetCenter().x)
+                    if (player->GetWorldPos().x < enemy->GetWorldPos().x)
                     {
-                        if (player->GetCenter().x - player->GetWidth() / 2.0f >= 0)
-                            player->SetCenterX(player->GetCenter().x - (player->GetWidth() / 2.0f));
+                        if (player->GetWorldPos().x - player->GetWidth() / 2.0f >= 0)
+                            player->SetWorldPosX(player->GetWorldPos().x - (player->GetWidth() / 2.0f));
                     }
                     else
                     {
-                        if (player->GetCenter().x + player->GetWidth() / 2.0f <= CameraManager::GetSingleton()->GetBG()->GetWidth())
-                            player->SetCenterX(player->GetCenter().x + (player->GetWidth() / 2.0f));
+                        if (player->GetWorldPos().x + player->GetWidth() / 2.0f <= CameraManager::GetSingleton()->GetBG()->GetWidth())
+                            player->SetWorldPosX(player->GetWorldPos().x + (player->GetWidth() / 2.0f));
                     }
-                    player->SetCenterY(player->GetCenter().y - (player->GetHeight()));
+                    player->SetWorldPosY(player->GetWorldPos().y - (player->GetHeight()));
                     //TODO 플레이어 에너지 감소 및 데미지 이펙트
                     ProcessDamage(enemy, player);
                     player->SetJumpingState(JUMPING_STATE::JUMPING_DOWN);
@@ -398,7 +398,7 @@ void CollisionManager::CheckPlayerProtileEnemiesCollision()
     RECT enemyRect;
     for (auto enemy : *vEnemyUnits)
     {
-        if (enemy->GetUnitState() == UNIT_STATE::DEAD_STATE)
+        if (enemy->GetUnitState() == UNIT_STATE::DEAD_STATE || enemy->GetUnitState() == UNIT_STATE::END_OF_UNIT_STATE)
             continue;
         if(player->GetSkillManager()->GetCurrentSkill())
         {
@@ -425,10 +425,15 @@ void CollisionManager::CheckPlayerProtileEnemiesCollision()
                                 (LONG)(enemy->GetLocalPos().y + enemy->GetCenterToBottom()) };
                         if (IntersectRect(&commonRect, &shurikenRect, &enemyRect))
                         {
-                            enemy->SetState(UNIT_STATE::HIT_STATE);
+                            if(enemy->GetUnitState() != UNIT_STATE::ATTACK_STATE)
+                                enemy->SetState(UNIT_STATE::HIT_STATE);
                             ((Monster*)enemy)->SetTarget(player);
                             ProcessDamage(player, enemy);
                             shuriken->SetFired(false);
+                            if (enemy->GetUnitState() == UNIT_STATE::DEAD_STATE)//Enemy가 죽었으면
+                            {
+                                ((Character*)player)->SetExp(((Character*)player)->GetExp() + ((Monster*)enemy)->GetEXP());
+                            }
                         }
                         else if (IntersectRect(&commonRect, &shurikenRange, &enemyRect) )
                         {
@@ -543,7 +548,7 @@ void CollisionManager::CheckPixelCollisionFor(Unit* unit, bool checkRope, bool c
             if (player->GetUnitState() == UNIT_STATE::HANGING_STATE && player->GetJumpingState() == JUMPING_STATE::END_OF_JUMPING_STATE) {
                 player->SetJumpingState(JUMPING_STATE::JUMPING_DOWN);
                 //player->SetState(UNIT_STATE::JUMPING_STATE);
-                player->SetCenterY(player->GetCenter().y - 30);
+                player->SetWorldPosY(player->GetWorldPos().y - 30);
                 return;
             }
             else if (player->GetUnitState() != UNIT_STATE::HANGING_STATE && player->GetUnitState() != UNIT_STATE::HANGING_MOVE_STATE)
@@ -570,12 +575,12 @@ void CollisionManager::CheckPixelCollisionFor(Unit* unit, bool checkRope, bool c
 void CollisionManager::ProcessDamage(Unit* attackUnit, Unit* defenseUnit)
 {
     pair<bool, int> damagePair = CalcUtil::GetSingleton()->CalcDamage(defenseUnit->GetDefense(), defenseUnit->GetProtection(),
-                        attackUnit->GetDamage(), attackUnit->GetCriticalPercentage(), attackUnit->GetCriticalDamage());
+                        (float)(attackUnit->GetDamage()), attackUnit->GetCriticalPercentage(), attackUnit->GetCriticalDamage());
     bool isCritical = damagePair.first;
     int damage = damagePair.second;
     string damageStr = "";
 
-    defenseUnit->SetHp(defenseUnit->GetHp() - damage);
+    defenseUnit->SetHP(defenseUnit->GetHp() - damage);
     defenseUnit->CheckAlive();
     defenseUnit->SetHit(true);
     defenseUnit->GetDamageQueue()->push_back(CalcUtil::GetSingleton()->TurnIntegerIntoStr(damage), isCritical);

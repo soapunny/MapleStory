@@ -4,9 +4,11 @@
 class Unit;
 class NPCManager;
 class MonsterManager;
+class CSound;
 class InGameScene : public GameNode
 {
 protected:
+	CSound* m_bgm;//BGM
 	Unit* character;
 	NPCManager* npcManager;
 	MonsterManager* monsterManager;

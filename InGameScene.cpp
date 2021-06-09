@@ -12,7 +12,7 @@ void InGameScene::MoveSceneUsingPortal()
         double tmpDistance = 0.0;
         for (int i = 0; i < vPortalLoc->size(); i++)
         {
-            tmpDistance = sqrt(pow((double)(*vPortalLoc)[i]->x - character->GetCenter().x, 2.0) + pow((double)(*vPortalLoc)[i]->y - character->GetCenter().y, 2.0));
+            tmpDistance = sqrt(pow((double)(*vPortalLoc)[i]->x - character->GetWorldPos().x, 2.0) + pow((double)(*vPortalLoc)[i]->y - character->GetWorldPos().y, 2.0));
             if (minPortalDistance > tmpDistance)
             {
                 minPortalDistance = tmpDistance;

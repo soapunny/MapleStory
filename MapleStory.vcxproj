@@ -73,6 +73,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -91,10 +93,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -145,10 +149,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Alert.cpp" />
     <ClCompile Include="CalcUtil.cpp" />
+    <ClCompile Include="CharacterDTO.cpp" />
+    <ClCompile Include="CharacterStorage.cpp" />
+    <ClCompile Include="CharacterEntity.cpp" />
+    <ClCompile Include="Confirm.cpp" />
+    <ClCompile Include="ConsumableItem.cpp" />
+    <ClCompile Include="ConsumableItemDTO.cpp" />
+    <ClCompile Include="CSound.cpp" />
     <ClCompile Include="DamageQueue.cpp" />
+    <ClCompile Include="CharDataTellerMachine.cpp" />
     <ClCompile Include="FirstTownScene.cpp" />
     <ClCompile Include="InGameScene.cpp" />
+    <ClCompile Include="InventoryEntity.cpp" />
+    <ClCompile Include="InventoryStore.cpp" />
+    <ClCompile Include="InventoryDTO.cpp" />
+    <ClCompile Include="InventoryTellerMachine.cpp" />
+    <ClCompile Include="Item.cpp" />
+    <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="ItemStorage.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MapStorage.cpp" />
+    <ClCompile Include="MonsterStorage.cpp" />
     <ClCompile Include="Mushmom.cpp" />
     <ClCompile Include="MushroomFieldScene.cpp" />
     <ClCompile Include="Button.cpp" />
@@ -156,7 +179,6 @@
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="GameNode.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageManager.cpp" />
     <ClCompile Include="KeyManager.cpp" />
@@ -165,9 +187,12 @@
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="MonsterManager.cpp" />
-    <ClCompile Include="NPC.cpp" />
+    <ClCompile Include="NPCDTO.cpp" />
     <ClCompile Include="NPCManager.cpp" />
+    <ClCompile Include="NPCStorage.cpp" />
+    <ClCompile Include="NPCTellerMachine.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="NPC.cpp" />
     <ClCompile Include="Shuriken.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="SkillManager.cpp" />
@@ -176,11 +201,31 @@
     <ClCompile Include="Unit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Alert.h" />
     <ClInclude Include="CalcUtil.h" />
+    <ClInclude Include="CharacterDTO.h" />
+    <ClInclude Include="CharacterStorage.h" />
+    <ClInclude Include="CharacterEntity.h" />
+    <ClInclude Include="Confirm.h" />
+    <ClInclude Include="ConsumableItem.h" />
+    <ClInclude Include="ConsumableItemDTO.h" />
+    <ClInclude Include="ConsumableItemEntity.h" />
+    <ClInclude Include="CSound.h" />
     <ClInclude Include="DamageQueue.h" />
+    <ClInclude Include="CharDataTellerMachine.h" />
     <ClInclude Include="FirstTownScene.h" />
     <ClInclude Include="InGameScene.h" />
+    <ClInclude Include="InventoryEntity.h" />
+    <ClInclude Include="InventoryStore.h" />
+    <ClInclude Include="InventoryDTO.h" />
+    <ClInclude Include="InventoryTellerMachine.h" />
+    <ClInclude Include="Item.h" />
+    <ClInclude Include="Inventory.h" />
+    <ClInclude Include="ItemStorage.h" />
     <ClInclude Include="Managers.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="MapStorage.h" />
+    <ClInclude Include="MonsterStorage.h" />
     <ClInclude Include="Mushmom.h" />
     <ClInclude Include="MushroomFieldScene.h" />
     <ClInclude Include="Button.h" />
@@ -198,9 +243,13 @@
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Monster.h" />
     <ClInclude Include="MonsterManager.h" />
-    <ClInclude Include="NPC.h" />
+    <ClInclude Include="NPCDTO.h" />
+    <ClInclude Include="NPCEntity.h" />
     <ClInclude Include="NPCManager.h" />
+    <ClInclude Include="NPCStorage.h" />
+    <ClInclude Include="NPCTellerMachine.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="NPC.h" />
     <ClInclude Include="Shuriken.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Skill.h" />

@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "TimerManager.h"
 
 HRESULT Image::Init(int width, int height)
 {
@@ -155,6 +156,7 @@ HRESULT Image::Init(const char* fileName, int width, int height, int maxFrameX, 
 
     this->isTransparent = isTransparent;
     this->transColor = transColor;
+    renderTimer = 0.0f;
 
     return S_OK;
 }
@@ -175,9 +177,9 @@ HRESULT Image::Init(const char* fileName, int width, int height, int maxFrameX, 
     imageInfo->hBlendDC = CreateCompatibleDC(hdc);
     imageInfo->hBlendBit = CreateCompatibleBitmap(hdc, width, height);
     imageInfo->hOldBlendBit = (HBITMAP)SelectObject(imageInfo->hBlendDC, imageInfo->hBlendBit);
-    this->blendFunc.AlphaFormat = 0;
+    this->blendFunc.AlphaFormat = AC_SRC_OVER;
     this->blendFunc.BlendFlags = 0;
-    this->blendFunc.BlendOp = AC_SRC_OVER;
+    this->blendFunc.BlendOp = 0;
     this->blendFunc.SourceConstantAlpha = 155;
 
     imageInfo->width = width;
@@ -203,6 +205,7 @@ HRESULT Image::Init(const char* fileName, int width, int height, int maxFrameX, 
 
     this->isTransparent = isTransparent;
     this->transColor = transColor;
+    renderTimer = 0.0f;
 
     return S_OK;
 }
@@ -241,6 +244,48 @@ void Image::Render(HDC hdc, int destX, int destY, bool isCenterRenderring)
             imageInfo->height,  // 원본에서 복사될 세로크기
             imageInfo->hMemDC,  // 원본 DC
             0, 0,               // 원본에서 복사 시작 위치
+            SRCCOPY             // 복사 옵션
+        );
+    }
+
+}
+
+
+void Image::Render(HDC hdc, int destX, int destY, bool isCenterRenderring, float renderRatio)
+{
+    int x = destX;
+    int y = destY;
+    if (isCenterRenderring)
+    {
+        x = destX - (imageInfo->width / 2)* renderRatio;
+        y = destY - (imageInfo->height / 2)* renderRatio;
+    }
+
+    if (isTransparent)
+    {
+        // 특정 색상을 빼고 복사하는 함수
+        GdiTransparentBlt(
+            hdc,
+            x, y,
+            imageInfo->width * renderRatio, imageInfo->height * renderRatio,
+
+            imageInfo->hMemDC,
+            0, 0,
+            imageInfo->width, imageInfo->height,
+            transColor
+        );
+    }
+    else
+    {
+        // bitmap 에 있는 이미지 정보를 다른 비트맵에 복사
+        StretchBlt(
+            hdc,
+            x, y,
+            imageInfo->width * renderRatio, imageInfo->height * renderRatio,
+
+            imageInfo->hMemDC,
+            0, 0,
+            imageInfo->width, imageInfo->height,
             SRCCOPY             // 복사 옵션
         );
     }
@@ -328,10 +373,16 @@ void Image::RenderMiniMap(HDC hdc, int destX, int destY, int width, int height, 
     Ellipse(hdc, characterCenterPos.x - 5, characterCenterPos.y - 5, characterCenterPos.x + 5, characterCenterPos.y + 5);
 }
 
-void Image::RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring)
+void Image::RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring, bool isOrgRender)
 {
     int x = 0;
     int y = 0;
+
+    HDC fromHDC;
+    if (isOrgRender)
+        fromHDC = imageInfo->hMemDC;
+    else
+        fromHDC = imageInfo->hSubDC;
 
     if (isCenterRenderring)
     {
@@ -348,7 +399,7 @@ void Image::RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRend
             WINSIZE_X,
             WINSIZE_Y,
 
-            imageInfo->hMemDC,  // 원본 DC
+            fromHDC,  // 원본 DC
             copyX,  // 복사 X 위치
             copyY, // 복사 Y 위치
             WINSIZE_X,  // 복사 크기
@@ -364,7 +415,7 @@ void Image::RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRend
             WINSIZE_X,
             WINSIZE_Y,
 
-            imageInfo->hMemDC,  // 원본 DC
+            fromHDC,  // 원본 DC
             copyX,  // 복사 X 위치
             copyY, // 복사 Y 위치
             WINSIZE_X,  // 복사 크기
@@ -408,6 +459,61 @@ void Image::FrameRender(HDC hdc, int destX, int destY, int currFrameX, int currF
             x, y,
             imageInfo->frameWidth * imageInfo->renderRatio,
             imageInfo->frameHeight * imageInfo->renderRatio,
+            imageInfo->hMemDC,
+            imageInfo->frameWidth * imageInfo->currFrameX,
+            imageInfo->frameHeight * imageInfo->currFrameY,
+            imageInfo->frameWidth,
+            imageInfo->frameHeight,
+            SRCCOPY);
+    }
+}
+
+void Image::RenderAutoFrame(HDC hdc, int destX, int destY, int frameY, float seconds, bool isCenterRenderring)
+{
+    imageInfo->currFrameY = frameY;
+
+    renderTimer += TimerManager::GetSingleton()->GetElapsedTime();
+    if (renderTimer >= seconds)
+    {
+        int maxFrameX = imageInfo->vMaxFrameX.size() > 0 ? GetVMaxFrameX(frameY) : imageInfo->maxFrameX;
+
+        imageInfo->currFrameX++;
+        if (imageInfo->currFrameX >= maxFrameX)
+            imageInfo->currFrameX = 0;
+
+        renderTimer = 0.0f;
+    }
+
+    int x = destX;
+    int y = destY;
+    if (isCenterRenderring)
+    {
+        x = destX - (imageInfo->frameWidth * imageInfo->renderRatio / 2);
+        y = destY - (imageInfo->frameHeight * imageInfo->renderRatio / 2);
+    }
+
+    if (isTransparent)
+    {
+        // 특정 색상을 빼고 복사하는 함수
+        GdiTransparentBlt(
+            hdc,                // 목적지 DC
+            x, y,               // 복사 위치
+            imageInfo->frameWidth * imageInfo->renderRatio,
+            imageInfo->frameHeight * imageInfo->renderRatio,  // 복사 크기
+
+            imageInfo->hMemDC,  // 원본 DC
+            imageInfo->frameWidth * imageInfo->currFrameX,  // 복사 X 위치
+            imageInfo->frameHeight * imageInfo->currFrameY, // 복사 Y 위치
+            imageInfo->frameWidth, imageInfo->frameHeight,  // 복사 크기
+            transColor  // 제외할 색상
+        );
+    }
+    else
+    {
+        StretchBlt(hdc,
+            x, y,
+            imageInfo->frameWidth,
+            imageInfo->frameHeight,
             imageInfo->hMemDC,
             imageInfo->frameWidth * imageInfo->currFrameX,
             imageInfo->frameHeight * imageInfo->currFrameY,

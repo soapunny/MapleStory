@@ -24,5 +24,7 @@ public:
 	virtual void SetResponTime(int responTime) { this->responTime = responTime; }
 	virtual void SetTarget(Unit* player) { this->player = player; }
 
+	virtual int GetEXP() { return exp; }
+	virtual int GetMoeny() { return money; }
 };
 

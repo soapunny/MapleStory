@@ -40,7 +40,7 @@ protected:
 	MOVE_DIRECTION moveDirection;
 	UNIT_STATE state;
 	JUMPING_STATE jumpingState;
-	FPOINT center;
+	FPOINT worldPos;
 	FPOINT localPos;
 	float width;
 	float height;
@@ -107,13 +107,13 @@ public:
 	virtual inline void SetName(string name) { this->name = name; }
 	virtual inline void SetMoveSpeed(float moveSpeed) { this->moveSpeed = moveSpeed; }
 	virtual inline void SetMoveDirection(MOVE_DIRECTION moveDirection) { this->moveDirection = moveDirection; }
-	virtual inline void SetHp(int hp) { this->hp = hp; }
+	virtual inline void SetHP(int hp) { this->hp = hp; }
 	virtual inline void SetMaxHp(int maxHp) { this->maxHp = maxHp; }
-	virtual inline void SetMp(int mp) { this->mp = mp; }
-	virtual inline void SetCenter(FPOINT center) { this->center = center; }
+	virtual inline void SetMP(int mp) { this->mp = mp; }
 	virtual inline void SetLocalPos(FPOINT localPos) { this->localPos = localPos; }
-	virtual inline void SetCenterX(float x) { this->center.x = x; }
-	virtual inline void SetCenterY(float y) { this->center.y = y; }
+	virtual inline void SetWorldPos(FPOINT worldPos) { this->worldPos = worldPos; }
+	virtual inline void SetWorldPosX(float x) { this->worldPos.x = x; }
+	virtual inline void SetWorldPosY(float y) { this->worldPos.y = y; }
 	virtual inline void SetDamage(int damage) { this->damage = damage; }
 	virtual inline void SetShape(RECT shape) { this->shape = shape; }
 	virtual inline void SetJumpingDown(bool isJumpingDown) { this->isJumpingDown = isJumpingDown; }
@@ -128,7 +128,7 @@ public:
 	virtual inline string GetName() { return name; }
 	virtual inline int GetLevel() { return level; }
 	virtual inline RECT GetShape() { return shape; }
-	virtual inline FPOINT GetCenter() { return center; }
+	virtual inline FPOINT GetWorldPos() { return worldPos; }
 	virtual inline FPOINT GetLocalPos() { return localPos; }
 	virtual inline float GetWidth() { return width; }
 	virtual inline float GetHeight() { return height; }
@@ -157,11 +157,14 @@ public:
 	virtual RECT GetAttackBox() { return attackBox; }
 	virtual bool GetAttack() { return isAttack; }
 	virtual inline POINT GetAttackFrame() { return frame; }
+	virtual inline Image* GetImage() { return image; }
 
 	inline virtual float GetCenterToLeft() { return width / 2.0f; };
 	inline virtual float GetCenterToRight() { return width / 2.0f; };
 	inline virtual float GetCenterToTop() { return height / 2.0f; };
 	inline virtual float GetCenterToBottom() { return height / 2.0f; };
+
+	inline virtual string InstanceOf() { return string{ typeid(this).name() }; }
 
 	//Recovery
 	virtual void InitHpRecovery(int hpRecovery, bool isHpRecovered = false, float hpRecoveryTimer = 0.0f, float hpRecoveryTime = 0.0f, float hpRecoveryDuration = 0.0f, COLORREF hpRecoveryColor = RGB(17, 204, 255));

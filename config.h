@@ -2,13 +2,17 @@
 #pragma once
 #pragma comment(lib, "Winmm.lib")
 #pragma comment(lib, "msimg32.lib")
+#pragma comment(lib, "Gdiplus.lib")
 
 #include <Windows.h>
+#include <gdiplus.h>
 #include <string>
 #include <ctime>
 #include <bitset>
 #include <map>
 #include <vector>
+#include <set>
+#include <unordered_set>
 using namespace std;
 
 #define WINSIZE_X	1080

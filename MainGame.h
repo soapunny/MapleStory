@@ -6,7 +6,6 @@ class MainGame : public GameNode
 {
 private:
 	bool isInited;
-
 	HDC hdc;
 	char szText[128] = "";
 

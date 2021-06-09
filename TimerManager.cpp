@@ -28,6 +28,8 @@ void TimerManager::Update()
 
 void TimerManager::Render(HDC hdc)
 {
+    SetBkMode(hdc, 0);//폰트 배경 제거
+    return;
     if (timer)
     {
         SetBkMode(hdc, 0);//폰트 배경 제거

@@ -24,56 +24,83 @@
     <Filter Include="2D_Framework\UI">
       <UniqueIdentifier>{7d6aa8ed-a389-4d3d-9141-2a71b4f72000}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MainGame\Unit">
-      <UniqueIdentifier>{d7b251ba-bd4c-49d4-829a-16eb544706d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MainGame\Scene">
-      <UniqueIdentifier>{58f1dd7c-5cca-4143-8da1-14fd141e1089}</UniqueIdentifier>
-    </Filter>
     <Filter Include="2D_Framework\UI\Button">
       <UniqueIdentifier>{107932fa-9d56-4acb-91e2-7288ce24424d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MainGame\Skill">
-      <UniqueIdentifier>{b319335f-7c7e-4e3e-afcb-8f0dd4385d30}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="MainGame\Unit\Monster">
+    <Filter Include="MainGame\DataArea">
+      <UniqueIdentifier>{2a84ea8a-adbd-4a60-aa0f-ff8586e5b056}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\DataArea\DataStorage">
+      <UniqueIdentifier>{2f74af7f-59ac-4ae1-b7ea-7c5632cbdba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\DataArea\Entities">
+      <UniqueIdentifier>{74df1630-bb56-4e58-acd7-7853ba021c46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea">
+      <UniqueIdentifier>{fbca0122-a940-423c-bb2c-9b96c5cf9a96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Item">
+      <UniqueIdentifier>{fa5e2138-3b9a-41ac-b83b-c086710d06ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Scene">
+      <UniqueIdentifier>{58f1dd7c-5cca-4143-8da1-14fd141e1089}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Skill">
+      <UniqueIdentifier>{b319335f-7c7e-4e3e-afcb-8f0dd4385d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Skill\Shuriken">
+      <UniqueIdentifier>{9fefd2f6-648f-4c4e-ae77-7e20ad5c68ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Unit">
+      <UniqueIdentifier>{d7b251ba-bd4c-49d4-829a-16eb544706d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Unit\Monster">
       <UniqueIdentifier>{b20837ad-b8d7-4b9f-a9fc-2a252a7b3e85}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MainGame\Unit\NPC">
+    <Filter Include="MainGame\GameArea\Unit\NPC">
       <UniqueIdentifier>{d9f66bc0-d695-4574-ab56-3675f506fee4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MainGame\Unit\Character">
+    <Filter Include="MainGame\GameArea\Unit\Character">
       <UniqueIdentifier>{7302e347-4e0e-46d8-a5b1-0d4e38443eac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MainGame\Unit\Util">
+    <Filter Include="MainGame\GameArea\Unit\Util">
       <UniqueIdentifier>{377c02a5-5b50-470f-a3a6-353afeda8617}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MainGame\Skill\Shuriken">
-      <UniqueIdentifier>{9fefd2f6-648f-4c4e-ae77-7e20ad5c68ff}</UniqueIdentifier>
+    <Filter Include="2D_Framework\image">
+      <UniqueIdentifier>{d7b707aa-17d7-4244-b4b4-66d78b9cf123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\ObejctClass">
+      <UniqueIdentifier>{77e75766-a5ca-4d15-8e3e-57b67bf1deea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\Utility">
+      <UniqueIdentifier>{ede48657-9957-4a05-a6b7-3a6e9dc28de2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\Map">
+      <UniqueIdentifier>{013e4215-4134-427f-8eb2-b62135277f6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\Sound">
+      <UniqueIdentifier>{a6a6b836-8fb8-4681-9c0e-73fa01625904}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D_Framework\UI\Message">
+      <UniqueIdentifier>{f75bd377-fea5-41a6-a39d-72efbe6ed396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\DataArea\TellerMachine">
+      <UniqueIdentifier>{ab0dbc4b-2627-4f09-9da3-2668043e7156}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MainGame\GameArea\DTO">
+      <UniqueIdentifier>{c79832ce-51b2-41c5-bb9b-cd6f2d1efc30}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MainGame.cpp">
-      <Filter>MainGame</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>2D_Framework\Timer</Filter>
     </ClCompile>
     <ClCompile Include="Button.cpp">
       <Filter>2D_Framework\UI\Button</Filter>
-    </ClCompile>
-    <ClCompile Include="Image.cpp">
-      <Filter>2D_Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="GameNode.cpp">
-      <Filter>2D_Framework</Filter>
     </ClCompile>
     <ClCompile Include="ImageManager.cpp">
       <Filter>2D_Framework\Manager</Filter>
@@ -88,10 +115,10 @@
       <Filter>2D_Framework\Manager</Filter>
     </ClCompile>
     <ClCompile Include="LoadingScene.cpp">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Unit.cpp">
-      <Filter>MainGame\Unit</Filter>
+      <Filter>MainGame\GameArea\Unit</Filter>
     </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>2D_Framework\Manager</Filter>
@@ -100,72 +127,132 @@
       <Filter>2D_Framework\Manager</Filter>
     </ClCompile>
     <ClCompile Include="SkillManager.cpp">
-      <Filter>MainGame\Skill</Filter>
+      <Filter>MainGame\GameArea\Skill</Filter>
     </ClCompile>
     <ClCompile Include="Skill.cpp">
-      <Filter>MainGame\Skill</Filter>
+      <Filter>MainGame\GameArea\Skill</Filter>
     </ClCompile>
     <ClCompile Include="CollisionManager.cpp">
       <Filter>2D_Framework\Manager</Filter>
     </ClCompile>
     <ClCompile Include="MushroomFieldScene.cpp">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClCompile>
     <ClCompile Include="FirstTownScene.cpp">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Monster.cpp">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClCompile>
     <ClCompile Include="MonsterManager.cpp">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClCompile>
     <ClCompile Include="Mushmom.cpp">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClCompile>
     <ClCompile Include="Character.cpp">
-      <Filter>MainGame\Unit\Character</Filter>
-    </ClCompile>
-    <ClCompile Include="NPC.cpp">
-      <Filter>MainGame\Unit\NPC</Filter>
+      <Filter>MainGame\GameArea\Unit\Character</Filter>
     </ClCompile>
     <ClCompile Include="NPCManager.cpp">
-      <Filter>MainGame\Unit\NPC</Filter>
+      <Filter>MainGame\GameArea\Unit\NPC</Filter>
     </ClCompile>
     <ClCompile Include="DamageQueue.cpp">
-      <Filter>MainGame\Unit\Util</Filter>
+      <Filter>MainGame\GameArea\Unit\Util</Filter>
     </ClCompile>
     <ClCompile Include="InGameScene.cpp">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Shuriken.cpp">
-      <Filter>MainGame\Skill\Shuriken</Filter>
+      <Filter>MainGame\GameArea\Skill\Shuriken</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemStorage.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterStorage.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterStorage.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumableItem.cpp">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>2D_Framework\image</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>MainGame</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGame.cpp">
+      <Filter>MainGame\GameArea</Filter>
     </ClCompile>
     <ClCompile Include="CalcUtil.cpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>2D_Framework\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="MapStorage.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCStorage.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="NPC.cpp">
+      <Filter>MainGame\GameArea\Unit\NPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>MainGame\GameArea\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryStore.cpp">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClCompile>
+    <ClCompile Include="CSound.cpp">
+      <Filter>2D_Framework\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryEntity.cpp">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Alert.cpp">
+      <Filter>2D_Framework\UI\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="Confirm.cpp">
+      <Filter>2D_Framework\UI\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterEntity.cpp">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="CharDataTellerMachine.cpp">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterDTO.cpp">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCDTO.cpp">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryDTO.cpp">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsumableItemDTO.cpp">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryTellerMachine.cpp">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCTellerMachine.cpp">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MainGame.h">
-      <Filter>MainGame</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>2D_Framework\Timer</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>2D_Framework\UI\Button</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>2D_Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Image.h">
-      <Filter>2D_Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="GameNode.h">
-      <Filter>2D_Framework</Filter>
     </ClInclude>
     <ClInclude Include="ImageManager.h">
       <Filter>2D_Framework\Manager</Filter>
@@ -180,10 +267,10 @@
       <Filter>2D_Framework\Manager</Filter>
     </ClInclude>
     <ClInclude Include="LoadingScene.h">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Unit.h">
-      <Filter>MainGame\Unit</Filter>
+      <Filter>MainGame\GameArea\Unit</Filter>
     </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>2D_Framework\Manager</Filter>
@@ -192,55 +279,142 @@
       <Filter>2D_Framework\Manager</Filter>
     </ClInclude>
     <ClInclude Include="SkillManager.h">
-      <Filter>MainGame\Skill</Filter>
+      <Filter>MainGame\GameArea\Skill</Filter>
     </ClInclude>
     <ClInclude Include="Skill.h">
-      <Filter>MainGame\Skill</Filter>
+      <Filter>MainGame\GameArea\Skill</Filter>
     </ClInclude>
     <ClInclude Include="CollisionManager.h">
       <Filter>2D_Framework\Manager</Filter>
     </ClInclude>
-    <ClInclude Include="CommonFunction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="MushroomFieldScene.h">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClInclude>
     <ClInclude Include="FirstTownScene.h">
-      <Filter>MainGame\Scene</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Monster.h">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClInclude>
     <ClInclude Include="MonsterManager.h">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClInclude>
     <ClInclude Include="Mushmom.h">
-      <Filter>MainGame\Unit\Monster</Filter>
+      <Filter>MainGame\GameArea\Unit\Monster</Filter>
     </ClInclude>
     <ClInclude Include="Character.h">
-      <Filter>MainGame\Unit\Character</Filter>
-    </ClInclude>
-    <ClInclude Include="NPC.h">
-      <Filter>MainGame\Unit\NPC</Filter>
+      <Filter>MainGame\GameArea\Unit\Character</Filter>
     </ClInclude>
     <ClInclude Include="NPCManager.h">
-      <Filter>MainGame\Unit\NPC</Filter>
+      <Filter>MainGame\GameArea\Unit\NPC</Filter>
     </ClInclude>
     <ClInclude Include="DamageQueue.h">
-      <Filter>MainGame\Unit\Util</Filter>
+      <Filter>MainGame\GameArea\Unit\Util</Filter>
     </ClInclude>
     <ClInclude Include="InGameScene.h">
-      <Filter>MainGame\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Managers.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>MainGame\GameArea\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Shuriken.h">
-      <Filter>MainGame\Skill\Shuriken</Filter>
+      <Filter>MainGame\GameArea\Skill\Shuriken</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemStorage.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterStorage.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterStorage.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsumableItem.h">
+      <Filter>MainGame\GameArea\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>2D_Framework\image</Filter>
+    </ClInclude>
+    <ClInclude Include="GameNode.h">
+      <Filter>2D_Framework\ObejctClass</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>2D_Framework\ObejctClass</Filter>
+    </ClInclude>
+    <ClInclude Include="MainGame.h">
+      <Filter>MainGame\GameArea</Filter>
+    </ClInclude>
+    <ClInclude Include="Managers.h">
+      <Filter>2D_Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonFunction.h">
+      <Filter>2D_Framework\Utility</Filter>
     </ClInclude>
     <ClInclude Include="CalcUtil.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>2D_Framework\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>2D_Framework\ObejctClass</Filter>
+    </ClInclude>
+    <ClInclude Include="MapStorage.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCStorage.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="NPC.h">
+      <Filter>MainGame\GameArea\Unit\NPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>MainGame\GameArea\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsumableItemEntity.h">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCEntity.h">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryEntity.h">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryStore.h">
+      <Filter>MainGame\DataArea\DataStorage</Filter>
+    </ClInclude>
+    <ClInclude Include="CSound.h">
+      <Filter>2D_Framework\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Alert.h">
+      <Filter>2D_Framework\UI\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Confirm.h">
+      <Filter>2D_Framework\UI\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterEntity.h">
+      <Filter>MainGame\DataArea\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="CharDataTellerMachine.h">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterDTO.h">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCDTO.h">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryDTO.h">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsumableItemDTO.h">
+      <Filter>MainGame\GameArea\DTO</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryTellerMachine.h">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCTellerMachine.h">
+      <Filter>MainGame\DataArea\TellerMachine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

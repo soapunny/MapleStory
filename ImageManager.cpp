@@ -4,6 +4,8 @@
 
 HRESULT ImageManager::Init()
 {
+    Gdiplus::GdiplusStartupInput gdiplusStarupInput;
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStarupInput, NULL);
     return S_OK;
 }
 
@@ -21,7 +23,7 @@ void ImageManager::Release()
         }
     }
     mImageDatas.clear();
-
+    Gdiplus::GdiplusShutdown(gdiplusToken);
     ReleaseSingleton();
 }
 

@@ -5,6 +5,9 @@
 #include "Image.h"
 #include "SkillManager.h"
 #include "DamageQueue.h"
+#include "Inventory.h"
+#include "InventoryStore.h"
+#include "InventoryEntity.h"
 
 #define ATTACK_TIME 1.0f
 
@@ -12,24 +15,24 @@ HRESULT Character::Init()
 {
     image = ImageManager::GetSingleton()->FindImage("Character");
     deathImage = ImageManager::GetSingleton()->FindImage("Death");
+    deathAlert = ImageManager::GetSingleton()->FindImage("DeathAlert");
+    nameBox = ImageManager::GetSingleton()->FindImage("NameBox");
+    levelMaple = Gdiplus::Image::FromFile(L"Image/UI/Maple2.png");
     timer = 0.0f; 
     isSkillOn = false;
-    
-    FileManager::GetSingleton()->ReadCharacterData(this);
 
     width = image->GetFrameWidth() * image->GetRenderRatio();
     height = image->GetFrameHeight() * image->GetRenderRatio();
 
-    shape.left = center.x - width / 2.0f;
-    shape.top = center.y - height / 2.0f;
+    shape.left = worldPos.x - width / 2.0f;
+    shape.top = worldPos.y - height / 2.0f;
     shape.right = shape.left + width;
     shape.bottom = shape.top + height;
 
     moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
-    maxHp = 500;
-    hp = maxHp;
-    maxMp = 500;
-    mp = maxMp;
+    moveSpeed = 100.0f;
+    maxHp = CalcUtil::GetSingleton()->CalcHP(level);
+    maxMp = CalcUtil::GetSingleton()->CalcMP(level);
 
     frame.x = 0;
     frame.y = 9;
@@ -42,18 +45,22 @@ HRESULT Character::Init()
     state = UNIT_STATE::JUMPING_STATE;
     jumpingState = JUMPING_STATE::JUMPING_DOWN;
     jumpTimer = 0.0f;
-    priorPos.x = center.x;
-    priorPos.y = center.y;
+    priorPos.x = worldPos.x;
+    priorPos.y = worldPos.y;
     isJumpingDown = false;
     hangingState = HANGING_STATE::NOT_ALLOWED;
     portalState = PORTAL_STATE::NOT_ALLOWED;
     blockedState = BLOCKED_STATE::END_OF_BLOCKED_STATE;
 
-    damage = CalcUtil::GetSingleton()->AbilityToDamage(luck, dex);
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
     criticalDamage = 1.5f;
 
     skillManager = new SkillManager();
     skillManager->Init();
+
+    inventory = new Inventory();
+    inventory->Init();
 
     InitHitTimer(false, 0.0f, 2.0f);
 
@@ -75,20 +82,28 @@ HRESULT Character::Init()
     );
 
     CollisionManager::GetSingleton()->RegisterPlayer(this);
+    InventoryStore::GetSingleton()->LoadInventory(name);
 
     return S_OK;
 }
 
 void Character::Release()
 {
+    if (characterDTO)
+    {
+        SAFE_DELETE(characterDTO);
+    }
     if(font)
         DeleteObject(font);
     if (skillManager)
         SAFE_RELEASE(skillManager);
+    if (inventory)
+        SAFE_RELEASE(inventory);
     if (recoveryInfo)
         SAFE_DELETE(recoveryInfo);
     if (damageQueue)
         SAFE_RELEASE(damageQueue);
+    InventoryStore::GetSingleton()->Release();
 }
 
 //TODO 점프 매끄럽게 잘 되게 수정하기
@@ -99,8 +114,8 @@ void Character::Update()
     if (jumpingState == JUMPING_STATE::JUMPING_UP)
     {
         jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
-        center.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
-        center.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);// 점프타이머(-0.5*GA*점프타이머 + velocity * sin(PI/2.0f))
+        worldPos.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
+        worldPos.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);// 점프타이머(-0.5*GA*점프타이머 + velocity * sin(PI/2.0f))
         
         if (jumpTimer >= velocity * sin(jumpAngle) / (0.5f * GA) / 2.0f)//낙하시간대로 들어서면
         {
@@ -113,18 +128,18 @@ void Character::Update()
         if (jumpTimer < velocity * sin(jumpAngle) / (0.5f * GA) / 2.0f) {//낙하시간이 아니라 이륙시간대이면
             jumpTimer = velocity * sin(jumpAngle / (0.5f * GA) / 2.0f);//낙하 시간대으로 바꿔주고
             //현재 위치에서 포물선의 최고점 위치 만큼 빼준다. -> 아래식서 현재위치가 포물선의 최고점이되게
-            priorPos.x = center.x;
-            priorPos.y = center.y + (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
+            priorPos.x = worldPos.x;
+            priorPos.y = worldPos.y + (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
         }
         jumpTimer += TimerManager::GetSingleton()->GetElapsedTime()*10;
-        center.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
-        center.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
+        worldPos.x = priorPos.x + velocity * cos(jumpAngle) * jumpTimer;
+        worldPos.y = priorPos.y - (velocity * sin(jumpAngle) * jumpTimer - 0.5f * GA * jumpTimer * jumpTimer);
     }
     else if(jumpingState == JUMPING_STATE::JUST_LANDED)//방금 착지했을 때
     {
         state = UNIT_STATE::DEFAULT_STATE;
-        priorPos.x = center.x;
-        priorPos.y = center.y;
+        priorPos.x = worldPos.x;
+        priorPos.y = worldPos.y;
         jumpingState = JUMPING_STATE::END_OF_JUMPING_STATE;
     }
     else
@@ -136,15 +151,17 @@ void Character::Update()
         isJumpingDown = false;
     }
     //이동 막아주기
-    if (center.x <= GetCenterToLeft())
+    if (worldPos.x <= GetCenterToLeft())
     {
-        center.x = GetCenterToLeft();
+        worldPos.x = GetCenterToLeft();
     }
-    else if (center.x >= CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight())
+    else if (worldPos.x >= CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight())
     {
-        center.x = CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight();
+        worldPos.x = CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight();
     }
 
+    //Update player's Inventory
+    inventory->Update();
 
     //유한상태 기계 만들기
     switch (state)
@@ -221,7 +238,7 @@ void Character::HandleDefaultState()
         //TODO 로프가 있는지 포탈이 있는 지 확인
         if(hangingState == HANGING_STATE::ALLOWED){
             state = UNIT_STATE::HANGING_STATE;
-            center.y = center.y - 5;
+            worldPos.y = worldPos.y - 5;
             return;
         }
         else if (portalState == PORTAL_STATE::ALLOWED)
@@ -320,13 +337,13 @@ void Character::HandleJumpingState()
     {
         moveDirection = MOVE_DIRECTION::MOVE_LEFT;
         Move();
-        priorPos.x = center.x;
+        priorPos.x = worldPos.x;
     }
     else if (KeyManager::GetSingleton()->IsStayKeyDown(VK_RIGHT))
     {
         moveDirection = MOVE_DIRECTION::MOVE_RIGHT;
         Move();
-        priorPos.x = center.x;
+        priorPos.x = worldPos.x;
     }
     if (KeyManager::GetSingleton()->IsStayKeyDown(VK_SHIFT))
     {
@@ -341,8 +358,8 @@ void Character::HandleJumpingState()
     {
         //d = v * t; 포물선 운동
         jumpingState = JUMPING_STATE::JUMPING_UP;
-        priorPos.x = center.x;
-        priorPos.y = center.y;
+        priorPos.x = worldPos.x;
+        priorPos.y = worldPos.y;
         jumpTimer = 0.0f;
     }
     if (KeyManager::GetSingleton()->IsStayKeyDown('C'))
@@ -488,8 +505,8 @@ void Character::HandleSkillState()
             velocity = 100.0f;
             jumpTimer = 0.0f;
             jumpingState = JUMPING_STATE::JUMPING_UP;
-            priorPos.x = center.x;
-            priorPos.y = center.y;
+            priorPos.x = worldPos.x;
+            priorPos.y = worldPos.y;
 
             //skillManager->FireSkill("flashJump", shape);
         }
@@ -682,12 +699,85 @@ CHARACTER_FRAME_Y Character::UnitStateToCharacterFrameY(UNIT_STATE unitState)
     return result;
 }
 
+void Character::RenderUI(HDC hdc)
+{
+    nameBox->Render(hdc, localPos.x, localPos.y + GetCenterToBottom() + 10, true);
+    RECT nameRect = { localPos.x - GetCenterToLeft(),
+                    localPos.y + GetCenterToBottom() + 5,
+                    localPos.x + GetCenterToRight() ,
+                    localPos.y + GetCenterToBottom() + 25};
+
+    HFONT font = CreateFont(18, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("타이포_꼬맹이마음 B"));
+    HFONT oldFont = (HFONT)SelectObject(hdc, font);
+    SetTextColor(hdc, RGB(255, 255, 255));
+    TextOut(hdc, localPos.x - 4 * name.size(),
+        localPos.y + GetCenterToBottom() + 5,
+        name.c_str(),
+        strlen(name.c_str())
+    );
+
+
+    DeleteObject(font);
+    //DeleteObject(oldFont);
+}
+
+void Character::RenderLevelUp(HDC hdc)
+{
+   if (!isLevelUp)
+        return;
+
+    levelUpTimer += TimerManager::GetSingleton()->GetElapsedTime();
+
+    if (levelUpTimer <= 10.0f)
+    {
+        HFONT font = CreateFont(50, 0, 0, 0, 0, 0, 0, 0, HANGUL_CHARSET, 0, 0, 0, VARIABLE_PITCH || FF_ROMAN, TEXT("타이포_꼬맹이마음 B"));
+        HFONT oldFont = (HFONT)SelectObject(hdc, font);
+        SetTextColor(hdc, RGB(255, 255, 0));
+        float levelUpBannerPosY = 0.0f;
+        INT imageX = 0;
+        INT imageY = 0;
+        INT imageWidth = 0;
+        INT imageHeight = 0;
+        if (levelUpTimer <= 5.0f)
+        {
+            imageX = localPos.x - 50.0f * levelUpTimer;
+            imageY = localPos.y - 100.0f * levelUpTimer;
+            imageWidth = 100.0f * levelUpTimer;
+            imageHeight = 100.0f * levelUpTimer;
+
+            Gdiplus::Graphics g(hdc);
+            g.DrawImage(levelMaple, imageX, imageY, imageWidth, imageHeight);
+        }
+
+        if (levelUpTimer <= 5.0f)
+            levelUpBannerPosY = localPos.y - GetCenterToTop() - 20 * levelUpTimer;
+        else
+            levelUpBannerPosY = localPos.y - GetCenterToTop() - 20 * 5.0f;
+        TextOut(hdc, localPos.x - 12 * strlen("LEVEL UP"),
+            levelUpBannerPosY,
+            "LEVEL UP",
+            strlen("LEVEL UP")
+        );
+
+        DeleteObject(font);
+
+    }
+    else
+    {
+        isLevelUp = false;
+        levelUpTimer = 0.0f;
+    }
+}
+
 void Character::Render(HDC hdc)
 {
+    RenderLevelUp(hdc);
     if (state == UNIT_STATE::DEAD_STATE) 
     {
         deathImage->FrameRender(hdc, tombstonePos.x, tombstonePos.y, deathFrame.x, deathFrame.y, false);
         image->AlphaFrameRender(hdc, shape.left, shape.top, frame.x, frame.y, false);
+        deathAlert->Render(hdc, WINSIZE_X/2.0f, WINSIZE_Y/2.0f, true); 
+        RenderUI(hdc);
         return;
     }
     if (isHit && (int)(hitTimer * 10.0f) % 2 == 0)
@@ -698,6 +788,64 @@ void Character::Render(HDC hdc)
     {
         image->FrameRender(hdc, shape.left, shape.top, frame.x, frame.y, false);
     }
+    RenderUI(hdc);
+
     if (skillManager)
         skillManager->Render(hdc);
+}
+
+void Character::SetCharacterDTO(CharacterDTO* characterDTO)
+{
+    this->characterDTO = characterDTO; 
+    this->name = characterDTO->GetName(); 
+    this->worldPos = characterDTO->GetWorldPos();
+    this->level = characterDTO->GetLevel();
+    this->hp = characterDTO->GetCurrHP();
+    this->mp = characterDTO->GetCurrMP();
+}
+
+void Character::PlusStr()
+{
+    characterDTO->SetStr(characterDTO->GetStr() + 1);
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
+}
+
+void Character::PlusDex()
+{
+    characterDTO->SetDex(characterDTO->GetDex() + 1);
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
+}
+
+void Character::PlusInt()
+{
+    characterDTO->SetInt(characterDTO->GetInt() + 1);
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
+}
+
+void Character::PlusLuk()
+{
+    characterDTO->SetLuk(characterDTO->GetLuk() + 1);
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
+}
+
+void Character::SetLevelUp()
+{
+    this->isLevelUp = true; 
+    this->level++;
+    this->maxHp = CalcUtil::GetSingleton()->CalcHP(level);
+    this->maxMp = CalcUtil::GetSingleton()->CalcMP(level);
+    this->hp = maxHp;
+    this->mp = maxMp;
+
+    characterDTO->SetLevel(level);
+    characterDTO->SetCurrHP(hp);
+    characterDTO->SetCurrMP(mp);
+    characterDTO->SetCurrAP(characterDTO->GetCurrAP() + 4);
+
+    damage = CalcUtil::GetSingleton()->AbilityToDamage(characterDTO->GetLuk(), characterDTO->GetDex());
+    criticalPercentage = CalcUtil::GetSingleton()->CalcCritical(characterDTO->GetLuk(), characterDTO->GetDex());
 }

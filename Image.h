@@ -73,6 +73,7 @@ private:
 	COLORREF transColor;
 
 	bool isRenderReady;
+	float renderTimer;
 
 	BLENDFUNCTION blendFunc;
 
@@ -96,10 +97,12 @@ public:
 
 	// 화면에 출력
 	void Render(HDC hdc, int destX = 0, int destY = 0, bool isCenterRenderring = false);
+	void Render(HDC hdc, int destX, int destY, bool isCenterRenderring, float renderRatio);
 	void Render(HDC hdc, int destX, int destY, int width, int height, bool isCenterRenderring = false);
 	void RenderMiniMap(HDC hdc, int destX, int destY, int width, int height, FPOINT characterCenterPos);
-	void RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring = false);
+	void RenderWalkingCamara(HDC hdc, int copyX, int copyY, bool isCenterRenderring = false, bool isOrgRender = true);
 	void FrameRender(HDC hdc, int destX, int destY, int currFrameX, int currFrameY, bool isCenterRenderring = false);
+	void RenderAutoFrame(HDC hdc, int destX, int destY, int frameY, float seconds = 0.2f, bool isCenterRenderring = false);
 	void FrameRender(HDC hdc, int destX, int destY, int width, int height, int currFrameX, int currFrameY, bool isCenterRenderring = false);
 	void AlphaRender(HDC hdc, int destX, int destY, bool isCenterRenderring = false);
 	void AlphaFrameRender(HDC hdc, int destX, int destY, int currFrameX, int currFrameY, bool isCenterRenderring = false);

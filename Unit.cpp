@@ -66,23 +66,23 @@ void Unit::Move()
     //플레이어 걷기
     if (moveDirection == MOVE_DIRECTION::MOVE_LEFT)
     {
-        if (center.x - moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() <= GetCenterToLeft() || blockedState == BLOCKED_STATE::LEFT)
+        if (worldPos.x - moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() <= GetCenterToLeft() || blockedState == BLOCKED_STATE::LEFT)
             return;
-        center.x -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+        worldPos.x -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
     else if (moveDirection == MOVE_DIRECTION::MOVE_RIGHT)
     {
-        if (center.x + moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() >= CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight() || blockedState == BLOCKED_STATE::RIGHT)
+        if (worldPos.x + moveSpeed * TimerManager::GetSingleton()->GetElapsedTime() >= CameraManager::GetSingleton()->GetBG()->GetWidth() - GetCenterToRight() || blockedState == BLOCKED_STATE::RIGHT)
             return;
-        center.x += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+        worldPos.x += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
     else if (moveDirection == MOVE_DIRECTION::MOVE_UP)
     {
-        center.y -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+        worldPos.y -= moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
     else if (moveDirection == MOVE_DIRECTION::MOVE_DOWN)
     {
-        center.y += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
+        worldPos.y += moveSpeed * TimerManager::GetSingleton()->GetElapsedTime();
     }
 }
 
@@ -124,9 +124,9 @@ void Unit::CountRecovery()
         if(hp < maxHp)
         { 
             if (maxHp - hp < recoveryInfo->hpRecovery)
-                hp += maxHp - hp;
+                SetHP(maxHp);
             else
-                hp += recoveryInfo->hpRecovery;
+                SetHP(hp + recoveryInfo->hpRecovery);
             recoveryQueue->push_back(CalcUtil::GetSingleton()->TurnIntegerIntoStr(recoveryInfo->hpRecovery), false);
             InitHpRecovery(recoveryInfo->hpRecovery, true, 0.0f, recoveryInfo->hpRecoveryTime, recoveryInfo->hpRecoveryDuration, recoveryInfo->hpRecoveryColor);
         }
@@ -139,9 +139,9 @@ void Unit::CountRecovery()
         if (mp < maxMp)
         {
             if (maxMp - mp < recoveryInfo->mpRecovery)
-                mp += maxMp - mp;
+                SetMP(maxMp);
             else
-                mp += recoveryInfo->mpRecovery;
+                SetMP(mp + recoveryInfo->mpRecovery);
             InitMpRecovery(recoveryInfo->mpRecovery, true, 0.0f, recoveryInfo->mpRecoveryTime);
         }
     }

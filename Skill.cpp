@@ -120,13 +120,15 @@ void Skill::FireSkill(Unit* owner, MOVE_DIRECTION direction)
     }
     this->ownerPos.y = owner->GetShape().top + 50.0f;
     this->direction = direction;
-    owner->SetMp(owner->GetMp() - mpConsumption);
+    owner->SetMP(owner->GetMp() - mpConsumption);
 
 
     if (needShuriken)
     {
         for (int i = 0; i < vShurikens.size(); i++)
         {
+            if (vShurikens[i]->GetFired())
+                continue;
             if (direction == MOVE_DIRECTION::MOVE_LEFT)
             {
                 vShurikens[i]->SetPos(FPOINT{ (float)owner->GetShape().left - 30 * i, (float)owner->GetShape().top + image->GetFrameHeight() + 10 * i });

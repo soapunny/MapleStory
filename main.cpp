@@ -16,8 +16,7 @@ MainGame g_mainGame;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 //void SetClientRect(HWND hWnd, int width, int height);
 
-int APIENTRY WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
-	LPSTR _lpszCmdParam, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, LPSTR _lpszCmdParam, int nCmdShow)
 {
 	g_hInstance = _hInstance;
 	float timer = 0.0f;
@@ -26,8 +25,8 @@ int APIENTRY WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
 	WNDCLASSEX wndClass;
 	wndClass.cbSize = sizeof(WNDCLASSEX);
 
-	wndClass.cbClsExtra = 2068;
-	wndClass.cbWndExtra = 2068;
+	wndClass.cbClsExtra = 512;
+	wndClass.cbWndExtra = 512;
 	wndClass.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
 	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);

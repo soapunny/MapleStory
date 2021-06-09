@@ -6,6 +6,7 @@ class Image;
 class ImageManager : public Singleton<ImageManager>
 {
 private:
+	ULONG_PTR gdiplusToken;
 	map<string, Image*> mImageDatas;
 
 public:

@@ -1,4 +1,5 @@
 #include "CalcUtil.h"
+#include <regex>
 
 pair<bool, int> CalcUtil::CalcDamage(float myDefense, float myProtection, float yourDamage, float yourCriticalPercentage, float yourCriticalDamageRate)
 {
@@ -15,6 +16,11 @@ pair<bool, int> CalcUtil::CalcDamage(float myDefense, float myProtection, float 
 	}
 
 	return make_pair(isCritical, damage);
+}
+
+float CalcUtil::CalcCritical(int mainStat, int subStat)
+{
+	return mainStat * 0.002f + subStat * 0.001f;
 }
 
 int CalcUtil::GetNumberLength(int number)
@@ -48,4 +54,28 @@ string CalcUtil::TurnIntegerIntoStr(int number)
 int CalcUtil::AbilityToDamage(int mainStat, int subStat)
 {
 	return mainStat * 4 + subStat;
+}
+
+float CalcUtil::GetDistance(FPOINT posA, FPOINT posB)
+{
+	return (float)sqrt(pow((posA.x-posB.x), 2) + pow((posA.y - posB.y), 2));
+}
+
+float CalcUtil::GetDistance(float differenceX, float differenceY)
+{
+	return (float)sqrt(((double)differenceX * differenceX) + ((double)differenceY * differenceY));
+}
+
+string CalcUtil::AddComma(int number)
+{
+	string result = "";
+	result.append(to_string(number));
+
+	if (number / 1000 == 0)//3자리 이상이 아닐 때
+		return result;
+
+	std::regex pattern("\\B(?=(\\d{3})+(?!\\d))");
+	result = std::regex_replace(result, pattern, ",");
+
+	return result;
 }

@@ -32,7 +32,7 @@ void Shuriken::Update()
         return;
 
     float elapsedTime = TimerManager::GetSingleton()->GetElapsedTime();
-    if (target)
+    if (target && target->GetUnitState() != UNIT_STATE::DEAD_STATE && target->GetUnitState() != UNIT_STATE::END_OF_UNIT_STATE)
     {
         if (pos.x > target->GetLocalPos().x)//수리검이 몬스터보다 오른쪽에 있을 때
         {
@@ -70,6 +70,7 @@ void Shuriken::Update()
     {
         isFired = false;
         range = 300.0f;//init
+        target = nullptr;
         return;
     }
 
@@ -89,7 +90,7 @@ void Shuriken::Render(HDC hdc)
 {
     if (isFired)
     {
-        Rectangle(hdc, pos.x - width / 2.0f, pos.y - height / 2.0f, pos.x + width / 2.0f, pos.y + height / 2.0f);
+        //Rectangle(hdc, pos.x - width / 2.0f, pos.y - height / 2.0f, pos.x + width / 2.0f, pos.y + height / 2.0f);
         image->FrameRender(hdc, pos.x, pos.y, frame.x, frame.y, true);
     }
 }
